@@ -1,0 +1,3 @@
+[submodule "extern/charls"]
+	path = extern/charls
+	url = ../../team-charls/charls

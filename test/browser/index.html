@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">   
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="../../dist/charls-js.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>JpegLS</h1>
+        Decode Time: <span id="decodeTime"></span>
+    </div>
+</div>
+</body>
+
+<script>
+    Module.onRuntimeInitialized = async _ => {
+
+    // embind
+    fetch('../../test/fixtures/CT2_JLSL-imageFrame-0.dat')
+    .then((response) => {
+      return response.arrayBuffer();
+    })
+    .then((arrayBuffer) => {
+      const source = new Uint8Array(arrayBuffer);
+      let instance = new Module.JpegLSDecode(source.length, 512*512*2);
+      const sourceBytes = instance.getSourceBytes();
+      sourceBytes.set(source);
+
+      const iterations = 100;
+      const begin = performance.now(); // performance.now() returns value in milliseconds
+      for(var i=0; i < iterations; i++) {
+        instance.decode();
+      }
+      const end = performance.now();
+      $('#decodeTime').text((end-begin) / iterations + ' ms');
+
+      var decoded = instance.getDestinationBytes();
+      console.log('decoded length = ', decoded.length);
+      console.log(decoded);
+      instance.delete();
+    });
+  }
+</script>
+</html>
