@@ -9,9 +9,17 @@
 <body>
 <div class="container">
     <div class="page-header">
-        <h1>JpegLS</h1>
-        Decode Time: <span id="decodeTime"></span>
+        <h1>JpegLS Decoding with WASM</h1>
     </div>
+    Width: <span id="width"></span>
+    <p></p>
+    Height: <span id="height"></span>
+    <p></p>
+    Bits Per Sample: <span id="bitsPerSample"></span>
+    <p></p>
+    Component Count:: <span id="componentCount"></span>
+    <p></p>
+    Decode Time: <span id="decodeTime">Calculating....</span>
 </div>
 </body>
 
@@ -29,18 +37,24 @@
       const sourceBytes = instance.getSourceBytes();
       sourceBytes.set(source);
 
-      const iterations = 100;
-      const begin = performance.now(); // performance.now() returns value in milliseconds
-      for(var i=0; i < iterations; i++) {
-        instance.decode();
-      }
-      const end = performance.now();
-      $('#decodeTime').text((end-begin) / iterations + ' ms');
+      instance.decode();
+      const frameInfo = instance.getFrameInfo();
+      $('#width').text(''+frameInfo.width);
+      $('#height').text(''+frameInfo.height);
+      $('#bitsPerSample').text(''+frameInfo.bitsPerSample);
+      $('#componentCount').text(''+frameInfo.componentCount);
 
-      var decoded = instance.getDestinationBytes();
-      console.log('decoded length = ', decoded.length);
-      console.log(decoded);
-      instance.delete();
+      setTimeout(() => {
+        const iterations = 200;
+        const begin = performance.now(); // performance.now() returns value in milliseconds
+        for(var i=0; i < iterations; i++) {
+          instance.decode();
+        }
+        const end = performance.now();
+        $('#decodeTime').text((end-begin) / iterations + ' ms');
+        var decoded = instance.getDestinationBytes();
+        instance.delete();
+      }, 1);
     });
   }
 </script>

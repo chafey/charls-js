@@ -20,6 +20,9 @@ modernLibrary.onRuntimeInitialized = async _ => {
   const durationInSeconds = (duration[0] + (duration[1] / 1000000000));
   console.log("Decode took " + ((durationInSeconds / iterations * 1000)) + " ms");
 
+  const frameInfo = instance.getFrameInfo();
+  console.log('frameInfo = ', frameInfo);
+
   var decoded = instance.getDestinationBytes();
   console.log('decoded length = ', decoded.length);
   //console.log(decoded);

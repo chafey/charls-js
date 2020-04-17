@@ -36,4 +36,11 @@ endif()
 add_subdirectory(extern/charls EXCLUDE_FROM_ALL)
 
 # add the js wrapper
-add_subdirectory(src)
+if(EMSCRIPTEN)
+  add_subdirectory(src)
+endif()
+
+# c++ native test case
+if(NOT EMSCRIPTEN)
+  add_subdirectory(test/cpp)
+endif()
