@@ -49,12 +49,13 @@ void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
 int main(int argc, char** argv) {
     std::vector<unsigned char> source;
     readFile("test/fixtures/CT2_JLSL-imageFrame-0.dat", source);
+    //readFile("test/fixtures/MG.dat", source);
 
     std::vector<unsigned char> destination;
 
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    const int iterations = 100;
+    const int iterations = 1;
     for(int i=0; i < iterations; i++) {
         charls::jpegls_decoder::decode(source, destination);
     }

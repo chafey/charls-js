@@ -4,6 +4,7 @@ const fs = require('fs')
 modernLibrary.onRuntimeInitialized = async _ => {
   // embind
   var source = fs.readFileSync('../fixtures/CT2_JLSL-imageFrame-0.dat');
+  //var source = fs.readFileSync('../fixtures/MG.dat');
   var instance = new modernLibrary.JpegLSDecode(source.length, 512*512*2);
   const sourceBytes = instance.getSourceBytes();
   sourceBytes.set(source);
@@ -11,7 +12,7 @@ modernLibrary.onRuntimeInitialized = async _ => {
   // do initial decode to make sure WASM JIT is initialized
   instance.decode();
 
-  const iterations = 100;
+  const iterations = 10;
   const begin = process.hrtime();
   for(var i=0; i < iterations; i++) {
     instance.decode();

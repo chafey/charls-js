@@ -28,12 +28,13 @@
 
     // embind
     fetch('../../test/fixtures/CT2_JLSL-imageFrame-0.dat')
+    //fetch('../../test/fixtures/MG.dat')
     .then((response) => {
       return response.arrayBuffer();
     })
     .then((arrayBuffer) => {
       const source = new Uint8Array(arrayBuffer);
-      let instance = new Module.JpegLSDecode(source.length, 512*512*2);
+      let instance = new Module.JpegLSDecode(source.length, 0);
       const sourceBytes = instance.getSourceBytes();
       sourceBytes.set(source);
 
@@ -45,10 +46,13 @@
       $('#componentCount').text(''+frameInfo.componentCount);
 
       setTimeout(() => {
-        const iterations = 200;
+        const iterations = 1;
         const begin = performance.now(); // performance.now() returns value in milliseconds
         for(var i=0; i < iterations; i++) {
+          const begini = performance.now(); // performance.now() returns value in milliseconds
           instance.decode();
+          const endi = performance.now();
+          console.log((endi-begini) + " ms");
         }
         const end = performance.now();
         $('#decodeTime').text((end-begin) / iterations + ' ms');
