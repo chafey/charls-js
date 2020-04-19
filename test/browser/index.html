@@ -38,15 +38,19 @@
       const sourceBytes = instance.getSourceBytes();
       sourceBytes.set(source);
 
-      instance.decode();
-      const frameInfo = instance.getFrameInfo();
-      $('#width').text(''+frameInfo.width);
-      $('#height').text(''+frameInfo.height);
-      $('#bitsPerSample').text(''+frameInfo.bitsPerSample);
-      $('#componentCount').text(''+frameInfo.componentCount);
-
       setTimeout(() => {
-        const iterations = 1;
+        // do a "warm up" decode
+        instance.decode();
+        const frameInfo = instance.getFrameInfo();
+
+        // update the UI with the frame info
+        $('#width').text(''+frameInfo.width);
+        $('#height').text(''+frameInfo.height);
+        $('#bitsPerSample').text(''+frameInfo.bitsPerSample);
+        $('#componentCount').text(''+frameInfo.componentCount);
+
+        // now do the benchmark
+        const iterations = 5;
         const begin = performance.now(); // performance.now() returns value in milliseconds
         for(var i=0; i < iterations; i++) {
           const begini = performance.now(); // performance.now() returns value in milliseconds

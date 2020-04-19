@@ -52,10 +52,13 @@ int main(int argc, char** argv) {
     //readFile("test/fixtures/MG.dat", source);
 
     std::vector<unsigned char> destination;
+    // do a "warm up" decode
+    charls::jpegls_decoder::decode(source, destination);
 
+    // now do the benchmark
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    const int iterations = 1;
+    const int iterations = 5;
     for(int i=0; i < iterations; i++) {
         charls::jpegls_decoder::decode(source, destination);
     }

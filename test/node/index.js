@@ -9,10 +9,11 @@ modernLibrary.onRuntimeInitialized = async _ => {
   const sourceBytes = instance.getSourceBytes();
   sourceBytes.set(source);
 
-  // do initial decode to make sure WASM JIT is initialized
+  // do a "warm up" decode
   instance.decode();
 
-  const iterations = 10;
+  // now do the actual benchmark
+  const iterations = 5;
   const begin = process.hrtime();
   for(var i=0; i < iterations; i++) {
     instance.decode();
