@@ -45,6 +45,7 @@ void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
     }
 }
 
+using namespace charls;
 
 int main(int argc, char** argv) {
     std::vector<unsigned char> source;
@@ -53,14 +54,14 @@ int main(int argc, char** argv) {
 
     std::vector<unsigned char> destination;
     // do a "warm up" decode
-    charls::jpegls_decoder::decode(source, destination);
+    jpegls_decoder::decode(source, destination);
 
     // now do the benchmark
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
     const int iterations = 5;
     for(int i=0; i < iterations; i++) {
-        charls::jpegls_decoder::decode(source, destination);
+        jpegls_decoder::decode(source, destination);
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &finish);
     sub_timespec(start, finish, &delta);
