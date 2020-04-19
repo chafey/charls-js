@@ -1,32 +1,48 @@
-let modernLibrary = require('../../dist/charls-js.js');
+let charls = require('../../dist/charls-js.js');
 const fs = require('fs')
 
-modernLibrary.onRuntimeInitialized = async _ => {
+charls.onRuntimeInitialized = async _ => {
   // embind
   var source = fs.readFileSync('../fixtures/CT2_JLSL-imageFrame-0.dat');
   //var source = fs.readFileSync('../fixtures/MG.dat');
-  var instance = new modernLibrary.JpegLSDecode(source.length, 512*512*2);
-  const sourceBytes = instance.getSourceBytes();
+  var decoder = new charls.JpegLSDecode(source.length, 512*512*2);
+  const sourceBytes = decoder.getSourceBytes();
   sourceBytes.set(source);
 
   // do a "warm up" decode
-  instance.decode();
+  decoder.decode();
 
   // now do the actual benchmark
   const iterations = 5;
-  const begin = process.hrtime();
+  const beginDecode = process.hrtime();
   for(var i=0; i < iterations; i++) {
-    instance.decode();
+    decoder.decode();
   }
-  const duration = process.hrtime(begin); // hrtime returns seconds/nanoseconds tuple
-  const durationInSeconds = (duration[0] + (duration[1] / 1000000000));
-  console.log("Decode took " + ((durationInSeconds / iterations * 1000)) + " ms");
+  const decodeDuration = process.hrtime(beginDecode); // hrtime returns seconds/nanoseconds tuple
+  const decodeDurationInSeconds = (decodeDuration[0] + (decodeDuration[1] / 1000000000));
+  console.log("Decode took " + ((decodeDurationInSeconds / iterations * 1000)) + " ms");
 
-  const frameInfo = instance.getFrameInfo();
+  const frameInfo = decoder.getFrameInfo();
   console.log('frameInfo = ', frameInfo);
 
-  var decoded = instance.getDestinationBytes();
-  console.log('decoded length = ', decoded.length);
-  //console.log(decoded);
-  instance.delete();
+  var decoded = decoder.getDestinationBytes();
+  console.log('Eecoded length = ', decoded.length);
+  
+  const encoder = new charls.JpegLSEncode(frameInfo);
+  const sourceBytesEncode = encoder.getSourceBytes();
+  sourceBytesEncode.set(decoded);
+  encoder.setNearLossless(0);
+  const encodeBegin = process.hrtime();
+  for(var i=0; i < iterations;i++) {
+    encoder.encode();
+  }
+  const encodeDuration = process.hrtime(encodeBegin);
+  const encodeDurationInSeconds = (encodeDuration[0] + (encodeDuration[1] / 1000000000));
+  console.log("Encode took " + ((encodeDurationInSeconds / iterations * 1000)) + " ms");
+
+  const encodedBytes = encoder.getDestinationBytes();
+  console.log('Encoded length=', encodedBytes.length)
+
+  encoder.delete();
+  decoder.delete();
 }
