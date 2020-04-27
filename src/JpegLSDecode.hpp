@@ -48,11 +48,23 @@ class JpegLSDecode {
   /// method, see getEncodedBuffer() above.
   /// </summary>
   void decode() {
-    std::pair<charls::frame_info, charls::interleave_mode> result = charls::jpegls_decoder::decode(encoded_, decoded_);
-    frameInfo_.width = result.first.width;
-    frameInfo_.height = result.first.height;
-    frameInfo_.bitsPerSample = result.first.bits_per_sample;
-    frameInfo_.componentCount = result.first.component_count;
+    charls::jpegls_decoder decoder;
+    decoder.source(encoded_);
+    
+    decoder.read_header();
+
+    nearLossless_ = decoder.near_lossless();
+    interleaveMode_ = decoder.interleave_mode();
+    charls::frame_info frameInfo = decoder.frame_info();
+    frameInfo_.width = frameInfo.width;
+    frameInfo_.height = frameInfo.height;
+    frameInfo_.bitsPerSample = frameInfo.bits_per_sample;
+    frameInfo_.componentCount = frameInfo.component_count;
+
+    const size_t destination_size{decoder.destination_size()};
+    decoded_.resize(destination_size);
+
+    decoder.decode(decoded_);
   }
 
   /// <summary>
@@ -62,9 +74,19 @@ class JpegLSDecode {
       return frameInfo_;
   }
 
+  unsigned char getInterleaveMode() const {
+    return (unsigned char)interleaveMode_;
+  }
+
+  int32_t getNearLossless() const {
+    return nearLossless_;
+  }
+
   private:
     std::vector<unsigned char> encoded_;
     std::vector<unsigned char> decoded_;
     FrameInfo frameInfo_;
+    charls::interleave_mode interleaveMode_;
+    int32_t nearLossless_;
 };
 

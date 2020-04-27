@@ -16,6 +16,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 
+
 set_target_properties(
     charls-js 
     PROPERTIES 
@@ -23,8 +24,8 @@ set_target_properties(
       --bind \
       -s DISABLE_EXCEPTION_CATCHING=1 \
       -s MALLOC=emmalloc \
-      -s TOTAL_MEMORY=1073741824 \
       -s ALLOW_MEMORY_GROWTH=1 \
+      -s TOTAL_MEMORY=1073741824 \
       -s ASSERTIONS=0 \
       -s FILESYSTEM=0 \
       -s EXPORTED_FUNCTIONS=[] \

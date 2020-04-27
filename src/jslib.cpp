@@ -22,6 +22,8 @@ EMSCRIPTEN_BINDINGS(JpegLSDecode) {
     .function("getDecodedBuffer", &JpegLSDecode::getDecodedBuffer)
     .function("decode", &JpegLSDecode::decode)
     .function("getFrameInfo", &JpegLSDecode::getFrameInfo)
+    .function("getInterleaveMode", &JpegLSDecode::getInterleaveMode)
+    .function("getNearLossless", &JpegLSDecode::getNearLossless)
    ;
 }
 
