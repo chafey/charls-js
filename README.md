@@ -1,6 +1,14 @@
 # charls-js
 JS/WASM build of CharLS
 
+## Try It Out!
+
+Try it in your browser [here](https://chafey.github.com/charls-js/test/browser/index.html)
+
+## Usage
+
+See example usage for web in test/browser and node.js in test/node
+
 ## Dependencies
 
 * CMake 3.17 or better

@@ -86,17 +86,25 @@
     return {min, max};
   }
 
-  function getPixelData(frameInfo, decodedBuffer) {
+  function getPixelData(frameInfo, decodedBuffer, signed) {
     if(frameInfo.bitsPerSample > 8) {
-      //return decodedBuffer;
-      return new Uint16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength);
+      if(signed) {
+        return new Int16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength);
+      } else {
+        return new Uint16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength);
+      }
     } else {
       return decodedBuffer;
     }
   }
 
   function display(frameInfo, decodedBuffer, interleaveMode) {
-    const pixelData = getPixelData(frameInfo, decodedBuffer);
+    // HACK - We force 16 bit data into signed short integers because that is
+    // the format our sample DICOM files are in.  Odd since JPEG-LS does not
+    // compress signed data as well as unsigned.
+    const signed = true; 
+
+    const pixelData = getPixelData(frameInfo, decodedBuffer, signed);
 
     const begin = performance.now(); // performance.now() returns value in milliseconds
     var c = document.getElementById("myCanvas");
@@ -113,6 +121,20 @@
     var inOffset = 0;
    
     const minMax = getMinMax(frameInfo, pixelData);
+    //console.log(minMax);
+    let dynamicRange = minMax.max - minMax.min;
+    //console.log('dynamicRange=', dynamicRange);
+    let bitsOfData = 1;
+    while(dynamicRange > 1) {
+      dynamicRange = dynamicRange >> 1;
+      bitsOfData++;
+    }
+    //console.log('bitsOfData = ', bitsOfData);
+    let bitShift = bitsOfData - 8;
+    const offset = -minMax.min;
+    //console.log('bitShift=', bitShift);
+    //console.log('offset=', offset);
+
     for(var y=0; y < frameInfo.height; y++) {
       for (var x = 0; x < frameInfo.width; x++) {
         if(frameInfo.bitsPerSample <= 8) {
@@ -143,10 +165,12 @@
         } 
         else // bitsPerSample > 8 
         {
-          //pixelData[inOffset] = x;
-          const fullPixel = pixelData[inOffset++];
-          const value = (fullPixel >> 4) & 255;
-          myImageData.data[outOffset + 3] = value;
+          const fullPixel = pixelData[inOffset++] + offset;
+          const value = (fullPixel >> bitShift);
+          // HACK - invert the pixel data to make it look right.  We should
+          // NOT have to do this, this indicates a bug somewhere..
+          //myImageData.data[outOffset + 3] = value;
+          myImageData.data[outOffset + 3] = 255 - value;
           outOffset += 4;
         }
       }
