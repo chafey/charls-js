@@ -33,10 +33,10 @@
       return response.arrayBuffer();
     })
     .then((arrayBuffer) => {
-      const source = new Uint8Array(arrayBuffer);
-      let instance = new Module.JpegLSDecode(source.length, 0);
-      const sourceBytes = instance.getSourceBytes();
-      sourceBytes.set(source);
+      const encodedBitStream = new Uint8Array(arrayBuffer);
+      let instance = new Module.JpegLSDecode(encodedBitStream.length);
+      const encodedBuffer = instance.getEncodedBuffer();
+      encodedBuffer.set(encodedBitStream);
 
       setTimeout(() => {
         // do a "warm up" decode
@@ -60,7 +60,7 @@
         }
         const end = performance.now();
         $('#decodeTime').text((end-begin) / iterations + ' ms');
-        var decoded = instance.getDestinationBytes();
+        var decoded = instance.getDecodedBuffer();
         instance.delete();
       }, 1);
     });

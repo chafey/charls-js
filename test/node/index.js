@@ -1,18 +1,11 @@
 let charls = require('../../dist/charls-js.js');
 const fs = require('fs')
 
-charls.onRuntimeInitialized = async _ => {
-  /////////////
-  // Decode
-  /////////////
-  var source = fs.readFileSync('../fixtures/CT2_JLSL-imageFrame-0.dat');
-  //var source = fs.readFileSync('../fixtures/MG.dat');
-  var decoder = new charls.JpegLSDecode(source.length, 512*512*2);
-  const sourceBytes = decoder.getSourceBytes();
-  sourceBytes.set(source);
-
-  // do a "warm up" decode to make sure the function is ready to be run
-  decoder.decode();
+function decode(pathToJPEGLSFile) {
+  const encodedBitStream = fs.readFileSync(pathToJPEGLSFile);
+  const decoder = new charls.JpegLSDecode(encodedBitStream.length);
+  const encodedBuffer = decoder.getEncodedBuffer();
+  encodedBuffer.set(encodedBitStream);
 
   // do the actual benchmark
   const iterations = 5;
@@ -27,17 +20,20 @@ charls.onRuntimeInitialized = async _ => {
   console.log("Decode took " + ((decodeDurationInSeconds / iterations * 1000)) + " ms");
   const frameInfo = decoder.getFrameInfo();
   console.log('frameInfo = ', frameInfo);
-  var decoded = decoder.getDestinationBytes();
+  var decoded = decoder.getDecodedBuffer();
   console.log('Decoded length = ', decoded.length);
-  
-  ///////////
-  // Encode
-  ///////////
 
-  const encoder = new charls.JpegLSEncode(frameInfo);
-  const sourceBytesEncode = encoder.getSourceBytes();
-  sourceBytesEncode.set(decoded);
+  decoder.delete();
+}
+
+function encode(pathToUncompressedImageFrame, imageFrame) {
+  const uncompressedImageFrame = fs.readFileSync(pathToUncompressedImageFrame);
+  const encoder = new charls.JpegLSEncode(imageFrame);
+  const decodedBytes = encoder.getDecodedBuffer();
+  decodedBytes.set(uncompressedImageFrame);
   encoder.setNearLossless(0);
+
+  const iterations = 5;
   const encodeBegin = process.hrtime();
   for(var i=0; i < iterations;i++) {
     encoder.encode();
@@ -47,10 +43,17 @@ charls.onRuntimeInitialized = async _ => {
   
   // print out information about the encode
   console.log("Encode took " + ((encodeDurationInSeconds / iterations * 1000)) + " ms");
-  const encodedBytes = encoder.getDestinationBytes();
+  const encodedBytes = encoder.getEncodedBuffer();
   console.log('Encoded length=', encodedBytes.length)
 
   // cleanup allocated memory
   encoder.delete();
-  decoder.delete();
+}
+
+charls.onRuntimeInitialized = async _ => {
+
+  decode('../fixtures/CT2_JLSL-imageFrame-0.dat');
+  //decode('../fixtures/MG.dat');
+
+  encode('../fixtures/ct2-frame.raw', {width: 512, height: 512, bitsPerSample: 16, componentCount: 1});
 }
