@@ -11,7 +11,7 @@
     <div class="page-header">
         <h1>JPEG-LS Decoding with WASM</h1>
         <p class="lead">
-          Select an image or drag and drop a JPEG-LS file
+          Select an image or drag and drop a JPEG-LS file.  Note that any files dropped here remain local in your browser, they are not uploaded anywhere.
       </p>
     </div>
 
@@ -19,7 +19,7 @@
       <select id="imageSelector">
         <option value="../../test/fixtures/CT1.JLS" selected>CT1</option>
         <option value="../../test/fixtures/CT2.JLS">CT2</option>
-        <option value="../../test/fixtures/MG1.JLS">MG1</option>
+        <!--<option value="../../test/fixtures/MG1.JLS">MG1</option>-->
         <option value="../../extern/charls/test/conformance/T8C0E0.JLS">T8C0E0</option>
         <option value="../../extern/charls/test/conformance/T8C0E3.JLS">T8C0E3</option>
         <option value="../../extern/charls/test/conformance/T8C1E0.JLS">T8C1E0</option>
@@ -177,7 +177,7 @@
     }
     ctx.putImageData(myImageData, 0, 0);
     const end = performance.now();
-    $('#displayTime').text(end-begin + ' ms');
+    $('#displayTime').text((end-begin).toFixed(2) + ' ms');
   }
 
   function decode(encodedJPEGLSBitStream) {
@@ -189,13 +189,13 @@
     let begin = performance.now(); // performance.now() returns value in milliseconds
     encodedBuffer.set(encodedJPEGLSBitStream);
     let end = performance.now();
-    $('#copytoWASMTime').text(end-begin + ' ms');
+    $('#copytoWASMTime').text((end-begin).toFixed(2) + ' ms');
 
     // Decode
     begin = performance.now(); // performance.now() returns value in milliseconds
     instance.decode();
     end = performance.now();
-    $('#decodeTime').text(end-begin + ' ms');
+    $('#decodeTime').text((end-begin).toFixed(2) + ' ms');
 
     const frameInfo = instance.getFrameInfo();
     const interleaveMode = instance.getInterleaveMode();
@@ -223,7 +223,12 @@
       return response.arrayBuffer();
     })
     .then((arrayBuffer) => {
-      decode(new Uint8Array(arrayBuffer));
+      try {
+        decode(new Uint8Array(arrayBuffer));
+      }
+      catch(ex) {
+        $('#status').text('Exception thrown while parsing ' + ex);
+      }
     }).catch(function() {
       $('#status').text('error loading ' + url);
     });
@@ -269,7 +274,13 @@
       fileReader.onload = function (e) {
           var fileAsArrayBuffer = e.target.result;
           var byteArray = new Uint8Array(fileAsArrayBuffer);
-          decode(byteArray);
+          reset();
+          try {
+            decode(byteArray);
+          }
+          catch(ex) {
+            $('#status').text('Exception thrown while parsing ' + ex);
+          }
       };
       fileReader.readAsArrayBuffer(file);
     }

@@ -1,5 +1,5 @@
 # charls-js
-JS/WASM build of CharLS
+JS/WebAssembly build of [CharLS](https://github.com/team-charls/charls)
 
 ## Try It Out!
 
@@ -7,38 +7,15 @@ Try it in your browser [here](https://chafey.github.com/charls-js/test/browser/i
 
 ## Usage
 
-See example usage for web in test/browser and node.js in test/node
-
-## Dependencies
-
-* CMake 3.17 or better
-* A C++ compatible compiler
-* Emscripten SDK 1.39.4 or better
-* NodeJS 8.0 or later
-
-## Visual Studio Code Remote Containers Support
-
-This project includes support for developing in a docker container using the 
-Visual Studio Code Remote - Containers extension.  The configured docker container
-includes emscripten, cmake and gcc so you can build, debug and run this project
-immediately without having to deal with toolchain dependencies. The default build task
-(shift+control+b) is to configure, build and run the tests
-
-NOTE: If you don't use VS Code but want to use Docker, you can try using the 
-Dockerfile in the .devcontainer folder.
-
-## building WASM (requires EMSCRIPTEN)
+Install this in your JavaScript project using npm:
 
 ```bash
-build.sh
+npm install --save-dev charls-js 
 ```
 
-After building, you can run the browser based test by running an http server
-at the root of this project and opening the file test/browser/index.html  I use 
-[HTTP Server / HTML Preview](https://marketplace.visualstudio.com/items?itemName=Flixs.vs-code-http-server-and-html-preview)
+See example usage for [web](test/browser/index.html) and [node](test/node/index.js)
 
-## building native C++
+## Building
 
-```bash
-build-native.sh
-```
+See information about building [here](BUILDING.md)
+
