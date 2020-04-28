@@ -77,3 +77,8 @@ See information about building [here](BUILDING.md)
 ## Design
 
 Read about the design considerations that went into this library [here](DESIGN.md)
+
+## Performance
+
+Read about the encode/decode performance of this library with NodeJS 14,
+Google Chrome and FireFox vs Native [here](PERFORMANCE.md)
