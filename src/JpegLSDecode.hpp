@@ -74,10 +74,19 @@ class JpegLSDecode {
       return frameInfo_;
   }
 
+  /// <summary>
+  /// returns the interleave mode for color images:
+  ///  0 - planar (RRRGGGBBB)
+  ///  1 - line (RGBRGBRGB)
+  ///  2 - pixel (RGBRGBRGB)
+  /// </summary>
   unsigned char getInterleaveMode() const {
     return (unsigned char)interleaveMode_;
   }
 
+  /// <summary>
+  /// returns the NEAR parameter.  0 is lossless, > 0 is lossy
+  /// </summary>
   int32_t getNearLossless() const {
     return nearLossless_;
   }

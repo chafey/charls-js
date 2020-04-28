@@ -146,7 +146,7 @@
             myImageData.data[outOffset + 3] = 255;
             outOffset += 4;
           } else if (frameInfo.componentCount === 3) {
-            if (interleaveMode === 0) { // none (I think this is supposed to be planar but it doesn't work)
+            if (interleaveMode === 0) { // planar (RRRRGGGGBBBB)
                 myImageData.data[outOffset++] = pixelData[inOffset];
                 myImageData.data[outOffset++] = pixelData[inOffset + planeSize];
                 myImageData.data[outOffset++] = pixelData[inOffset + (planeSize * 2)];
