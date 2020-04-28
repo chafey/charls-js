@@ -9,9 +9,11 @@
 <body>
 <div class="container">
     <div class="page-header">
-        <h1>JPEG-LS Decoding with WASM</h1>
+        <h1>JPEG-LS Decoding with WebAssembly</h1>
         <p class="lead">
-          Select an image or drag and drop a JPEG-LS file.  Note that any files dropped here remain local in your browser, they are not uploaded anywhere.
+          Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.  Note
+          that images with bitsPerSample > 8 are read as 16 bit signed integers so we can display our DICOM sample images properly.  Images that are
+          16 bit unsigned will not be displayed properly!
       </p>
     </div>
 
@@ -38,31 +40,29 @@
         <option value="../../extern/charls/test/jlsimage/banny_HP3.jls">banny_HP3</option>
         <option value="../../extern/charls/test/jlsimage/banny_normal.jls">banny_normal</option>
       </select>
-      <br>
-      <span>Status: </span><span id="status"></span>
-      <br>
-      <span>Encoded Size: </span><span id="encodedSize"></span>
-      <br>
-      <span>Copy to WASM Time: </span><span id="copytoWASMTime"></span>
-      <br>
-      <span>Decode Time: </span><span id="decodeTime"></span>
-      <br>
-      <span>Display Time: </span><span id="displayTime"></span>
-      <br>
-      <span>Width: </span><span id="width"></span>
-      <br>
-      <span>Height: </span><span id="height"></span>
-      <br>
-      <span>Bits Per Sample: </span><span id="bitsPerSample"></span>
-      <br>
-      <span>Component Count: </span><span id="componentCount"></span>
-      <br>
-      <span>Interleave Mode: </span><span id="interleaveMode"></span>
-      <br>
-      <span>Near Lossless: </span><span id="nearLossless"></span>
     </div>
-
-
+    <div class="row">
+        <div class="col-md-12">Status:<span id="status"></span></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Encoded Size: <span id="encodedSize"></span></div>
+      <div class="col-md-4">Decoded Size: <span id="decodedSize"></span></div>
+      <div class="col-md-4">Compression Ratio: <span id="compressionRatio"></span></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Decode Time: <span id="decodeTime"></span></div>
+      <div class="col-md-4">Display Time: <span id="displayTime"></span></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Width: <span id="width"></span></div>
+      <div class="col-md-4">Height: <span id="height"></span></div>
+      <div class="col-md-4">Bits Per Sample: <span id="bitsPerSample"></span></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Component Count: <span id="componentCount"></span></div>
+      <div class="col-md-4">Interleave Mode: <span id="interleaveMode"></span></div>
+      <div class="col-md-4">Near Lossless: <span id="nearLossless"></span></div>
+    </div>
   <div class="row">
     <div class="col-md-6">
         <canvas id='myCanvas' width="512" height="512"/>
@@ -99,9 +99,9 @@
   }
 
   function display(frameInfo, decodedBuffer, interleaveMode) {
-    // HACK - We force 16 bit data into signed short integers because that is
-    // the format our sample DICOM files are in.  Odd since JPEG-LS does not
-    // compress signed data as well as unsigned.
+    // HACK - We force all 16 bit data into signed short integers because that is
+    // the format our sample DICOM files are in.  This will cause 16 bit unsigned
+    // images to not display properly
     const signed = true; 
 
     const pixelData = getPixelData(frameInfo, decodedBuffer, signed);
@@ -169,11 +169,11 @@
         } 
         else // bitsPerSample > 8 
         {
+          // Do a simple transformation to display 16 bit data:
+          //  * Offset the pixels so the smallest value is 0
+          //  * Shift the pixels to display the most significant 8 bits
           const fullPixel = pixelData[inOffset++] + offset;
           const value = (fullPixel >> bitShift);
-          // HACK - invert the pixel data to make it look right.  We should
-          // NOT have to do this, this indicates a bug somewhere..
-          //myImageData.data[outOffset + 3] = value;
           myImageData.data[outOffset] = value;
           myImageData.data[outOffset + 1] = value;
           myImageData.data[outOffset + 2] = value;
@@ -196,7 +196,6 @@
     let begin = performance.now(); // performance.now() returns value in milliseconds
     encodedBuffer.set(encodedJPEGLSBitStream);
     let end = performance.now();
-    $('#copytoWASMTime').text((end-begin).toFixed(2) + ' ms');
 
     // Decode
     begin = performance.now(); // performance.now() returns value in milliseconds
@@ -218,6 +217,8 @@
 
     // Display Image
     var decodedBuffer = instance.getDecodedBuffer();
+    $('#decodedSize').text(''+decodedBuffer.length.toLocaleString() + " bytes");
+    $('#compressionRatio').text('' + (decodedBuffer.length /encodedJPEGLSBitStream.length).toFixed(2) + ":1");
     display(frameInfo, decodedBuffer, interleaveMode);
 
     // Free up memory
@@ -247,7 +248,8 @@
     ctx.fillRect(0,0,c.width, c.height);
     $('#status').text('');
     $('#encodedSize').text('');
-    $('#copytoWASMTime').text('');
+    $('#decodedSize').text('');
+    $('#compressionRatio').text('');
     $('#decodeTime').text('');
     $('#displayTime').text('');
     $('#width').text('');
