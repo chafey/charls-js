@@ -11,14 +11,14 @@ To avoid the library falling behind again, I thought it would be good
 to [merge it into the main CharLS library](https://github.com/team-charls/charls/issues/13).
 After quite a bit of research and experimentation, I decided it would be better
 to keep the JS/WASM code separate from the main CharLS library but improve the way
-the JS/WASM project was setup.  Part of my research lead me to discover
-[Modern CMake](https://cliutils.gitlab.io/modern-cmake/) which lead
-to an prototype of how it would work with EMSCRIPTEN 
+the JS/WASM project was setup to ease maintenance.  Part of my research lead
+me to discover [Modern CMake](https://cliutils.gitlab.io/modern-cmake/) which lead
+to a prototype of how it would work with EMSCRIPTEN 
 [here](https://github.com/chafey/modern-cpp-lib-js).
 
 ## Git Submodules
 
-The main charls is referenced as a git submodule.  This strategy ensures
+The main charls library is referenced as a git submodule.  This strategy ensures
 that JS/WASM code does not creep into the main charls library so it can
 remain pure C/C++ code.  This strategy also simplifies maintenance since the
 charls submodule tracks the master branch and can be easily updated to
@@ -28,6 +28,23 @@ new versions via
 git pull --recurse-submodules
 git submodule update --remote
 ```
+
+This strategy also enables different release cycles for the main CharLS
+library and the JS/WASM library.
+
+## CMake SubProject
+
+The main charls library is referenced as a CMake sub project by referencing
+it using the add_subdirectory() mechanism:
+
+```cmake
+add_subdirectory(extern/charls EXCLUDE_FROM_ALL)
+```
+
+This approach allows this library to easily reference/load/link the charls main
+project library by re-using its CMakeLists.txt file.  The EXCLUDE_FROM_ALL 
+causes it to ignore any build targets not explicitly linked (e.g. the test code
+and apps which are not needed by this library).
 
 ## EMBIND
 

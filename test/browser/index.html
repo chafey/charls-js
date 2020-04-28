@@ -139,11 +139,15 @@
       for (var x = 0; x < frameInfo.width; x++) {
         if(frameInfo.bitsPerSample <= 8) {
           if (frameInfo.componentCount === 1) {
-              myImageData.data[outOffset + 3] = pixelData[inOffset++];
-              outOffset += 4;
+            const value = pixelData[inOffset++];
+            myImageData.data[outOffset] = value;
+            myImageData.data[outOffset + 1] = value;
+            myImageData.data[outOffset + 2] = value;
+            myImageData.data[outOffset + 3] = 255;
+            outOffset += 4;
           } else if (frameInfo.componentCount === 3) {
             if (interleaveMode === 0) { // none (I think this is supposed to be planar but it doesn't work)
-                myImageData.data[outOffset++] = pixelData[inOffset++];
+                myImageData.data[outOffset++] = pixelData[inOffset];
                 myImageData.data[outOffset++] = pixelData[inOffset + planeSize];
                 myImageData.data[outOffset++] = pixelData[inOffset + (planeSize * 2)];
                 myImageData.data[outOffset++] = 255;
@@ -170,7 +174,10 @@
           // HACK - invert the pixel data to make it look right.  We should
           // NOT have to do this, this indicates a bug somewhere..
           //myImageData.data[outOffset + 3] = value;
-          myImageData.data[outOffset + 3] = 255 - value;
+          myImageData.data[outOffset] = value;
+          myImageData.data[outOffset + 1] = value;
+          myImageData.data[outOffset + 2] = value;
+          myImageData.data[outOffset + 3] = 255;
           outOffset += 4;
         }
       }
