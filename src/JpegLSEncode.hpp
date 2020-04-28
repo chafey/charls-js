@@ -15,31 +15,31 @@
 class JpegLSEncode {
   public: 
   /// <summary>
-  /// Constructor for encoding a JPEG-LS image from JavaScript.  Caller must
-  /// pass in a FrameInfo object which describes the pixel data to be encoded. 
+  /// Constructor for encoding a JPEG-LS image from JavaScript.  
   /// </summary>
-  /// <param name="frameInfo">FrameInfo that describes the pixel data to be encoded</param>
-  JpegLSEncode(const FrameInfo& frameInfo) : 
-    frameInfo_(frameInfo),
+  JpegLSEncode() : 
     interleaveMode_(charls::interleave_mode::none),
     nearLossless_(0) {
-    const size_t bytesPerPixel = frameInfo_.bitsPerSample / 8;
-    const size_t decodedSize = frameInfo_.width * frameInfo_.height * frameInfo_.componentCount * bytesPerPixel;
-    decoded_.resize(decodedSize);
   }
 
   /// <summary>
+  /// Resizes the decoded buffer to accomodate the specified frameInfo.
   /// Returns a TypedArray of the buffer allocated in WASM memory space that
   /// will hold the pixel data to be encoded.  JavaScript code needs
   /// to copy the pixel data into the returned TypedArray.  This copy
   /// operation is needed because WASM runs in a sandbox and cannot access 
   /// data managed by JavaScript
   /// </summary>
+  /// <param name="frameInfo">FrameInfo that describes the pixel data to be encoded</param>
   /// <returns>
   /// TypedArray for the buffer allocated in WASM memory space for the 
   /// source pixel data to be encoded.
   /// </returns>
-  emscripten::val getDecodedBuffer() {
+  emscripten::val getDecodedBuffer(const FrameInfo& frameInfo) {
+    frameInfo_ = frameInfo;
+    const size_t bytesPerPixel = frameInfo_.bitsPerSample / 8;
+    const size_t decodedSize = frameInfo_.width * frameInfo_.height * frameInfo_.componentCount * bytesPerPixel;
+    decoded_.resize(decodedSize);
     return emscripten::val(emscripten::typed_memory_view(decoded_.size(), decoded_.data()));
   }
   
@@ -61,6 +61,14 @@ class JpegLSEncode {
   /// </summary>
   void setNearLossless(int32_t nearLossless) {
     nearLossless_ = nearLossless;
+  }
+
+  /// <summary>
+  /// Sets the interleave mode for the encoding.  The default value is 0 which
+  /// is planar (RRRGGGBBB)
+  /// </summary>
+  void setInterleaveMode(unsigned char interleaveMode) {
+    interleaveMode_ = (charls::interleave_mode)interleaveMode;
   }
 
   /// <summary>

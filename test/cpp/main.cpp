@@ -47,28 +47,26 @@ void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
 
 using namespace charls;
 
-int main(int argc, char** argv) {
+void decode(const char* path, size_t iterations = 1) {
     std::vector<unsigned char> source;
-    readFile("test/fixtures/CT2_JLSL-imageFrame-0.dat", source);
-    //readFile("test/fixtures/MG.dat", source);
-
+    readFile(path, source);
     std::vector<unsigned char> destination;
-    // do a "warm up" decode
-    jpegls_decoder::decode(source, destination);
-
-    // now do the benchmark
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    const int iterations = 5;
     for(int i=0; i < iterations; i++) {
         jpegls_decoder::decode(source, destination);
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &finish);
     sub_timespec(start, finish, &delta);
     const double ms = (double)(delta.tv_nsec / iterations) / 1000000.0;
-    printf("Decode took %f ms\n", ms);
+    printf("Decode of %s took %f ms\n", path, ms);
+}
+
+int main(int argc, char** argv) {
+    decode("test/fixtures/CT1.JLS");
+    decode("test/fixtures/CT2.JLS");
+    decode("test/fixtures/MG1.JLS");
+    decode("extern/charls/test/lena8b.jls");
 
     return 0;
-
-
 }

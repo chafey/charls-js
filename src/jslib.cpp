@@ -17,7 +17,7 @@ EMSCRIPTEN_BINDINGS(FrameInfo) {
 
 EMSCRIPTEN_BINDINGS(JpegLSDecode) {
   class_<JpegLSDecode>("JpegLSDecode")
-    .constructor<size_t>()
+    .constructor<>()
     .function("getEncodedBuffer", &JpegLSDecode::getEncodedBuffer)
     .function("getDecodedBuffer", &JpegLSDecode::getDecodedBuffer)
     .function("decode", &JpegLSDecode::decode)
@@ -29,7 +29,7 @@ EMSCRIPTEN_BINDINGS(JpegLSDecode) {
 
 EMSCRIPTEN_BINDINGS(JpegLSEncode) {
   class_<JpegLSEncode>("JpegLSEncode")
-    .constructor<const FrameInfo&>()
+    .constructor<>()
     .function("getDecodedBuffer", &JpegLSEncode::getDecodedBuffer)
     .function("getEncodedBuffer", &JpegLSEncode::getEncodedBuffer)
     .function("setNearLossless", &JpegLSEncode::setNearLossless)

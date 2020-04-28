@@ -15,22 +15,20 @@
 class JpegLSDecode {
   public: 
   /// <summary>
-  /// Constructor for decoding a JPEG-LS image from JavaScript.  Caller must
-  /// pass in the size of the encoded JPEG-LS bitstream so the class can 
-  /// allocate a buffer in WASM memory big enough to hold it
+  /// Constructor for decoding a JPEG-LS image from JavaScript.
   /// </summary>
-  JpegLSDecode(size_t encodedSize) {
-    encoded_.resize(encodedSize);
+  JpegLSDecode() {
   }
 
   /// <summary>
-  /// Returns a TypedArray of the buffer allocated in WASM memory space that
-  /// will hold the JPEG-LS encoded bitstream.  JavaScript code needs to copy
-  /// the JPEG-LS encoded bistream into the returned TypedArray.  This copy 
-  /// operation is needed because WASM runs in a sandbox and cannot access 
-  /// memory managed by JavaScript.
+  /// Resizes encoded buffer and returns a TypedArray of the buffer allocated
+  /// in WASM memory space that will hold the JPEG-LS encoded bitstream.
+  /// JavaScript code needs to copy the JPEG-LS encoded bistream into the
+  /// returned TypedArray.  This copy operation is needed because WASM runs
+  /// in a sandbox and cannot access memory managed by JavaScript.
   /// </summary>
-  emscripten::val getEncodedBuffer() {
+  emscripten::val getEncodedBuffer(size_t encodedSize) {
+    encoded_.resize(encodedSize);
     return emscripten::val(emscripten::typed_memory_view(encoded_.size(), encoded_.data()));
   }
   

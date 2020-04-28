@@ -4,10 +4,10 @@ The [original JS build of CharLS](https://github.com/cornerstonejs/charls)
 was done in 2016 specifically to add JPEG-LS decoding to
 [cornerstonejs](https://github.com/cornerstonejs).  Unfortunately nobody
 picked up maintainence for the original project so it fell behind
-a major version release of CharLS and the addition of WASM to
-browsers and NodeJS.  
+a major version release of CharLS and never took advantage of
+WASM support that was later added to NodeJS and browsers.
 
-To avoid the library falling behind again, I thought it would be good
+To prevent the library falling behind again, I thought it would be good
 to [merge it into the main CharLS library](https://github.com/team-charls/charls/issues/13).
 After quite a bit of research and experimentation, I decided it would be better
 to keep the JS/WASM code separate from the main CharLS library but improve the way
@@ -55,3 +55,17 @@ which solves this problem by allow you to write the JavaScript bridge code
 in C++ and expose it via EMBIND.  I used this to create wrapper classes that
 handle the encoding, decoding, memory management and access to other properties
 such as the nearLossless parameter and interleaveMode.
+
+## Memory Management
+
+WASM code runs in its own sandbox and cannot access memory outside of that
+sandbox.  This means that data in JavaScript memory needs to be copied into
+WASM memory before the WASM code can use it.  Since decoded images will
+typically come from a server, the JPEG-LS encoded bitstream will always be 
+in JavaScript memory (e.g. in response to a fetch() to read it from HTTP
+server).  The encoded bitstream needs to be copied into WASM space before
+it can be decoded since the WASM decoder has no ability to access the
+JavaScript memory.  After the decode, the decoded pixels are also in
+WASM memory space.  JavaScript can access the decoded pixels directly,
+but it may also make sense to copy the pixel data into a canvas image data
+structure or some other javascript structure for performance reasons.

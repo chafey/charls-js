@@ -29,12 +29,12 @@
         <option value="../../extern/charls/test/conformance/T8C2E0.JLS">T8C2E0</option>
         <option value="../../extern/charls/test/conformance/T8C2E3.JLS">T8C2E3</option>
         <option value="../../extern/charls/test/conformance/T8NDE3.JLS">T8NDE3</option>
-        <option value="../../extern/charls/test/conformance/T8SSE0.JLS">T8SSE0 - not working</option>
-        <option value="../../extern/charls/test/conformance/T8SSE3.JLS">T8SSE3 - not working</option>
+        <!--<option value="../../extern/charls/test/conformance/T8SSE0.JLS">T8SSE0 - not working</option>-->
+        <!--<option value="../../extern/charls/test/conformance/T8SSE3.JLS">T8SSE3 - not working</option>-->
         <option value="../../extern/charls/test/conformance/T16E0.JLS">T16E0</option>
         <option value="../../extern/charls/test/conformance/T16E3.JLS">T16E3</option>
         <option value="../../extern/charls/test/lena8b.jls">lena8b</option>
-        <option value="../../extern/charls/test/mr2_unc.jls">mr2_unc - not working</option>
+        <!--<option value="../../extern/charls/test/mr2_unc.jls">mr2_unc - not working</option>-->
         <option value="../../extern/charls/test/jlsimage/banny_HP1.jls">banny_HP1</option>
         <option value="../../extern/charls/test/jlsimage/banny_HP2.jls">banny_HP2</option>
         <option value="../../extern/charls/test/jlsimage/banny_HP3.jls">banny_HP3</option>
@@ -191,8 +191,8 @@
     $('#encodedSize').text('' + encodedJPEGLSBitStream.length.toLocaleString() + ' bytes');
 
     // Setup
-    let instance = new Module.JpegLSDecode(encodedJPEGLSBitStream.length);
-    const encodedBuffer = instance.getEncodedBuffer();
+    let instance = new Module.JpegLSDecode();
+    const encodedBuffer = instance.getEncodedBuffer(encodedJPEGLSBitStream.length);
     let begin = performance.now(); // performance.now() returns value in milliseconds
     encodedBuffer.set(encodedJPEGLSBitStream);
     let end = performance.now();

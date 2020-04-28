@@ -32,15 +32,23 @@ space and finally, delete the decoder instance.
 ```javascript
 function decode(jpeglsEncodedBitStream) {
   // Create a decoder instance
-  const decoder = new charls.JpegLSDecode(jpeglsEncodedBitStream.length);
-  // get pointer to the source/encoded bit stream buffer in wasm memory
-  const encodedBufferInWASM = decoder.getEncodedBuffer();
-  // copy the encoded bitstream into wasm space
+  const decoder = new charls.JpegLSDecode();
+  
+  // get pointer to the source/encoded bit stream buffer in WASM memory
+  // that can hold the encoded bitstream
+  const encodedBufferInWASM = decoder.getEncodedBuffer(jpeglsEncodedBitStream.length);
+  
+  // copy the encoded bitstream into WASM memory buffer
   encodedBufferInWASM.set(jpeglsEncodedBitStream);
-  // decode it!
+  
+  // decode it
   decoder.decode();
-  // get information about the image
+  
+  // get information about the decoded image
   const frameInfo = decoder.getFrameInfo();
+  const interleaveMode = decoder.getInterleaveMode();
+  const nearLossless = decoder.getNearLossless();
+  
   // get the decoded pixels
   const decodedPixelsInWASM = decoder.getDecodedBuffer();
   
