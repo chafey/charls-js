@@ -1,4 +1,4 @@
-let charls = require('../../dist/charls-js.js');
+let charls = require('../../dist/charlsjs.js');
 const fs = require('fs')
 
 function decode(pathToJPEGLSFile, iterations = 1) {

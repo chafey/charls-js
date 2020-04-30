@@ -19,7 +19,7 @@ Install this in your JavaScript project using npm:
 Before using this library, you must wait for it to be initialized:
 
 ``` javascript
-const charls = require('charls-js')
+const charls = require('charlsjs')
 charls.onRuntimeInitialized = async _ => {
     // Now you can use it
 }
@@ -32,7 +32,7 @@ space and finally, delete the decoder instance.
 ```javascript
 function decode(jpeglsEncodedBitStream) {
   // Create a decoder instance
-  const decoder = new charls.JpegLSDecode();
+  const decoder = new charls.JpegLSDecoder();
   
   // get pointer to the source/encoded bit stream buffer in WASM memory
   // that can hold the encoded bitstream
@@ -67,8 +67,8 @@ decode(jpeglsEncodedBitStream)
 ```
 
 See examples for [browsers](test/browser/index.html) and [nodejs](test/node/index.js).
-Also read the API documentation for [JpegLSDecode.hpp](src/JpegLSDecode.hpp) and
-[JpegLSEncode.hpp](src/JpegLSEncode.hpp)
+Also read the API documentation for [JpegLSDecode.hpp](src/JpegLSDecoder.hpp) and
+[JpegLSEncode.hpp](src/JpegLSEncoder.hpp)
 
 ## Building
 

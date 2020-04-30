@@ -2,7 +2,7 @@
   "name": "charls",
   "version": "1.0.0",
   "description": "WASM Build of CharLS",
-  "main": "dist/charls-js.js",
+  "main": "dist/charlsjs.js",
   "directories": {
     "test": "test"
   },

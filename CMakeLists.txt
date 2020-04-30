@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project (charls-js
+project (charlsjs
   LANGUAGES CXX)
 
 # set the build type if not specified

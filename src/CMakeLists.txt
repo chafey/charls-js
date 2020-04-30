@@ -1,9 +1,9 @@
 
-add_executable(charls-js jslib.cpp)
+add_executable(charlsjs jslib.cpp)
 
-target_link_libraries(charls-js PRIVATE charls)
+target_link_libraries(charlsjs PRIVATE charls)
 
-target_compile_features(charls-js PUBLIC cxx_std_17)
+target_compile_features(charlsjs PUBLIC cxx_std_17)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	SET(linkFlags "-g4")
@@ -14,7 +14,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set_target_properties(
-    charls-js 
+    charlsjs 
     PROPERTIES 
     LINK_FLAGS "\
       --bind \
