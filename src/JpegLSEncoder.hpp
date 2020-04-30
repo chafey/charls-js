@@ -67,7 +67,7 @@ class JpegLSEncoder {
   /// Sets the interleave mode for the encoding.  The default value is 0 which
   /// is planar (RRRGGGBBB)
   /// </summary>
-  void setInterleaveMode(unsigned char interleaveMode) {
+  void setInterleaveMode(uint8_t interleaveMode) {
     interleaveMode_ = (charls::interleave_mode)interleaveMode;
   }
 
@@ -91,8 +91,8 @@ class JpegLSEncoder {
   }
 
   private:
-    std::vector<unsigned char> decoded_;
-    std::vector<unsigned char> encoded_;
+    std::vector<uint8_t> decoded_;
+    std::vector<uint8_t> encoded_;
     FrameInfo frameInfo_;
     charls::interleave_mode interleaveMode_;
     int32_t nearLossless_;

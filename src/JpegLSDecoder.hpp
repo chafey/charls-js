@@ -90,8 +90,8 @@ class JpegLSDecoder {
   }
 
   private:
-    std::vector<unsigned char> encoded_;
-    std::vector<unsigned char> decoded_;
+    std::vector<uint8_t> encoded_;
+    std::vector<uint8_t> decoded_;
     FrameInfo frameInfo_;
     charls::interleave_mode interleaveMode_;
     int32_t nearLossless_;
