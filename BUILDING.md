@@ -32,8 +32,8 @@ at the root of this project and opening the file test/browser/index.html  I use
 ## Build Output
 
 The build script generates two files in the /dist folder:
-* charlS-js.wasm - WebAssembly build of CharLS
-* charls-js.js - JavaScript "glue" genereated by EMBIND
+* charlSjs.wasm - WebAssembly build of CharLS
+* charlsjs.js - JavaScript "glue" genereated by EMBIND
 
 ## Publishing to NPM
 

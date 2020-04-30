@@ -67,8 +67,8 @@ decode(jpeglsEncodedBitStream)
 ```
 
 See examples for [browsers](test/browser/index.html) and [nodejs](test/node/index.js).
-Also read the API documentation for [JpegLSDecode.hpp](src/JpegLSDecoder.hpp) and
-[JpegLSEncode.hpp](src/JpegLSEncoder.hpp)
+Also read the API documentation for [JpegLSDecoder.hpp](src/JpegLSDecoder.hpp) and
+[JpegLSEncoder.hpp](src/JpegLSEncoder.hpp)
 
 ## Building
 

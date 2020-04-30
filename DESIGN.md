@@ -69,3 +69,8 @@ JavaScript memory.  After the decode, the decoded pixels are also in
 WASM memory space.  JavaScript can access the decoded pixels directly,
 but it may also make sense to copy the pixel data into a canvas image data
 structure or some other javascript structure for performance reasons.
+
+Both the encoder and decoder are designed such that instances can be safely
+reused accross multiple images.  Using the same instance is recommended as
+it will reuse the same underlying buffers and avoid fragmenting the heap -
+especially for large high resolution images.
