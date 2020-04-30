@@ -1,5 +1,5 @@
 // Copyright (c) Team CharLS.
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: MIT
 
 #pragma once
 
@@ -7,17 +7,17 @@
 
 #include <emscripten/val.h>
 
-#include "Types.hpp"
+#include "FrameInfo.hpp"
 
 /// <summary>
 /// JavaScript API for decoding JPEG-LS bistreams with CharLS
 /// </summary>
-class JpegLSDecode {
+class JpegLSDecoder {
   public: 
   /// <summary>
   /// Constructor for decoding a JPEG-LS image from JavaScript.
   /// </summary>
-  JpegLSDecode() {
+  JpegLSDecoder() {
   }
 
   /// <summary>
@@ -78,8 +78,8 @@ class JpegLSDecode {
   ///  1 - line (RGBRGBRGB)
   ///  2 - pixel (RGBRGBRGB)
   /// </summary>
-  unsigned char getInterleaveMode() const {
-    return (unsigned char)interleaveMode_;
+  uint8_t getInterleaveMode() const {
+    return static_cast<uint8_t>(interleaveMode_);
   }
 
   /// <summary>

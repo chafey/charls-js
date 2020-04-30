@@ -1,5 +1,8 @@
-#include "JpegLSDecode.hpp"
-#include "JpegLSEncode.hpp"
+// Copyright (c) Team CharLS.
+// SPDX-License-Identifier: MIT
+
+#include "JpegLSDecoder.hpp"
+#include "JpegLSEncoder.hpp"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -15,24 +18,24 @@ EMSCRIPTEN_BINDINGS(FrameInfo) {
        ;
 }
 
-EMSCRIPTEN_BINDINGS(JpegLSDecode) {
-  class_<JpegLSDecode>("JpegLSDecode")
+EMSCRIPTEN_BINDINGS(JpegLSDecoder) {
+  class_<JpegLSDecoder>("JpegLSDecoder")
     .constructor<>()
-    .function("getEncodedBuffer", &JpegLSDecode::getEncodedBuffer)
-    .function("getDecodedBuffer", &JpegLSDecode::getDecodedBuffer)
-    .function("decode", &JpegLSDecode::decode)
-    .function("getFrameInfo", &JpegLSDecode::getFrameInfo)
-    .function("getInterleaveMode", &JpegLSDecode::getInterleaveMode)
-    .function("getNearLossless", &JpegLSDecode::getNearLossless)
+    .function("getEncodedBuffer", &JpegLSDecoder::getEncodedBuffer)
+    .function("getDecodedBuffer", &JpegLSDecoder::getDecodedBuffer)
+    .function("decode", &JpegLSDecoder::decode)
+    .function("getFrameInfo", &JpegLSDecoder::getFrameInfo)
+    .function("getInterleaveMode", &JpegLSDecoder::getInterleaveMode)
+    .function("getNearLossless", &JpegLSDecoder::getNearLossless)
    ;
 }
 
-EMSCRIPTEN_BINDINGS(JpegLSEncode) {
-  class_<JpegLSEncode>("JpegLSEncode")
+EMSCRIPTEN_BINDINGS(JpegLSEncoder) {
+  class_<JpegLSEncoder>("JpegLSEncoder")
     .constructor<>()
-    .function("getDecodedBuffer", &JpegLSEncode::getDecodedBuffer)
-    .function("getEncodedBuffer", &JpegLSEncode::getEncodedBuffer)
-    .function("setNearLossless", &JpegLSEncode::setNearLossless)
-    .function("encode", &JpegLSEncode::encode)
+    .function("getDecodedBuffer", &JpegLSEncoder::getDecodedBuffer)
+    .function("getEncodedBuffer", &JpegLSEncoder::getEncodedBuffer)
+    .function("setNearLossless", &JpegLSEncoder::setNearLossless)
+    .function("encode", &JpegLSEncoder::encode)
    ;
 }

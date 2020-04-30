@@ -191,7 +191,7 @@
     $('#encodedSize').text('' + encodedJPEGLSBitStream.length.toLocaleString() + ' bytes');
 
     // Setup
-    let instance = new Module.JpegLSDecode();
+    let instance = new Module.JpegLSDecoder();
     const encodedBuffer = instance.getEncodedBuffer(encodedJPEGLSBitStream.length);
     let begin = performance.now(); // performance.now() returns value in milliseconds
     encodedBuffer.set(encodedJPEGLSBitStream);

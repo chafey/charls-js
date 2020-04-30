@@ -3,7 +3,7 @@ const fs = require('fs')
 
 function decode(pathToJPEGLSFile, iterations = 1) {
   const encodedBitStream = fs.readFileSync(pathToJPEGLSFile);
-  const decoder = new charls.JpegLSDecode();
+  const decoder = new charls.JpegLSDecoder();
   const encodedBuffer = decoder.getEncodedBuffer(encodedBitStream.length);
   encodedBuffer.set(encodedBitStream);
 
@@ -27,7 +27,7 @@ function decode(pathToJPEGLSFile, iterations = 1) {
 
 function encode(pathToUncompressedImageFrame, imageFrame, iterations = 1) {
   const uncompressedImageFrame = fs.readFileSync(pathToUncompressedImageFrame);
-  const encoder = new charls.JpegLSEncode();
+  const encoder = new charls.JpegLSEncoder();
   const decodedBytes = encoder.getDecodedBuffer(imageFrame);
   decodedBytes.set(uncompressedImageFrame);
   encoder.setNearLossless(0);
@@ -52,7 +52,7 @@ charls.onRuntimeInitialized = async _ => {
 
   decode('../fixtures/CT1.JLS');
   decode('../fixtures/CT2.JLS');
-  decode('../fixtures/MG1.JLS');
+  //decode('../fixtures/MG1.JLS');
   decode("../../extern/charls/test/lena8b.jls");
 
   encode('../fixtures/CT2.RAW', {width: 512, height: 512, bitsPerSample: 16, componentCount: 1});

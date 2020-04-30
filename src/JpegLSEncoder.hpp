@@ -1,5 +1,5 @@
 // Copyright (c) Team CharLS.
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: MIT
 
 #pragma once
 
@@ -7,17 +7,17 @@
 
 #include <emscripten/val.h>
 
-#include "Types.hpp"
+#include "FrameInfo.hpp"
 
 /// <summary>
 /// JavaScript API for encoding images to JPEG-LS bistreams with CharLS
 /// </summary>
-class JpegLSEncode {
+class JpegLSEncoder {
   public: 
   /// <summary>
   /// Constructor for encoding a JPEG-LS image from JavaScript.  
   /// </summary>
-  JpegLSEncode() : 
+  JpegLSEncoder() : 
     interleaveMode_(charls::interleave_mode::none),
     nearLossless_(0) {
   }
