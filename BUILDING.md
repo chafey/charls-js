@@ -1,12 +1,14 @@
 # Building CharLS-js
 
-CharLS-js utilizes CMake and EMSCRIPTEN for building.  The dependencies are
-as follows:
+CharLS-js utilizes CMake and EMSCRIPTEN for building.  The dependencies used
+for this build are as follows:
 
-* CMake 3.17 or better
+* CMake 3.16 or better
 * Emscripten SDK 1.39.4 or better
-* NodeJS 8.0 or later (for running test/node)
+* NodeJS 8.9.1 or later (for running test/node)
 * Modern browser (for running test/browser)
+
+**earlier versions may work but have not been tested**
 
 ## Visual Studio Code Remote Containers Support
 

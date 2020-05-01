@@ -65,7 +65,7 @@ void decode(const char* path, size_t iterations = 1) {
 int main(int argc, char** argv) {
     decode("test/fixtures/CT1.JLS");
     decode("test/fixtures/CT2.JLS");
-    decode("test/fixtures/MG1.JLS");
+    //decode("test/fixtures/MG1.JLS");
     decode("extern/charls/test/lena8b.jls");
 
     return 0;
