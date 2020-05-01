@@ -11,9 +11,7 @@
     <div class="page-header">
         <h1>JPEG-LS Decoding with WebAssembly</h1>
         <p class="lead">
-          Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.  Note
-          that images with bitsPerSample > 8 are read as 16 bit signed integers so we can display our DICOM sample images properly.  Images that are
-          16 bit unsigned will not be displayed properly!
+          Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.
       </p>
     </div>
 
@@ -29,17 +27,20 @@
         <option value="../../extern/charls/test/conformance/T8C2E0.JLS">T8C2E0</option>
         <option value="../../extern/charls/test/conformance/T8C2E3.JLS">T8C2E3</option>
         <option value="../../extern/charls/test/conformance/T8NDE3.JLS">T8NDE3</option>
-        <!--<option value="../../extern/charls/test/conformance/T8SSE0.JLS">T8SSE0 - not working</option>-->
-        <!--<option value="../../extern/charls/test/conformance/T8SSE3.JLS">T8SSE3 - not working</option>-->
         <option value="../../extern/charls/test/conformance/T16E0.JLS">T16E0</option>
         <option value="../../extern/charls/test/conformance/T16E3.JLS">T16E3</option>
         <option value="../../extern/charls/test/lena8b.jls">lena8b</option>
-        <!--<option value="../../extern/charls/test/mr2_unc.jls">mr2_unc - not working</option>-->
         <option value="../../extern/charls/test/jlsimage/banny_HP1.jls">banny_HP1</option>
         <option value="../../extern/charls/test/jlsimage/banny_HP2.jls">banny_HP2</option>
         <option value="../../extern/charls/test/jlsimage/banny_HP3.jls">banny_HP3</option>
         <option value="../../extern/charls/test/jlsimage/banny_normal.jls">banny_normal</option>
+        <!--
+        <option value="../../test/fixtures/artificial-line.jls">16Bit RGB - line</option>
+        <option value="../../test/fixtures/artificial-none.jls">16Bit RGB - none</option>
+        <option value="../../test/fixtures/artificial-sample.jls">16Bit RGB - sample</option>
+        --> 
       </select>
+        <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>
     </div>
     <div class="row">
         <div class="col-md-12">Status:<span id="status"></span></div>
@@ -71,6 +72,10 @@
 </body>
 
 <script>
+
+  let encodedJPEGLSBitStream = undefined;
+
+
   function getMinMax(frameInfo, pixelData) {
     const numPixels = frameInfo.width * frameInfo.height * frameInfo.componentCount;
     let min = pixelData[0];
@@ -98,24 +103,43 @@
     }
   }
 
-  function display(frameInfo, decodedBuffer, interleaveMode) {
-    // HACK - We force all 16 bit data into signed short integers because that is
-    // the format our sample DICOM files are in.  This will cause 16 bit unsigned
-    // images to not display properly
-    const signed = true; 
 
-    const pixelData = getPixelData(frameInfo, decodedBuffer, signed);
+  function colorToCanvas(frameInfo, pixelData, imageData, interleaveMode) {
+    let outOffset = 0;
+    const bytesPerSample = (frameInfo.bitsPerSample <= 8) ? 1 : 2;
+    let planeSize = frameInfo.width * frameInfo.height * bytesPerSample;
+    let shift = 0;
+    if(frameInfo.bitsPerSample >8) {
+      shift = 8;
+    }
+    let inOffset = 0;
+   
+    for(var y=0; y < frameInfo.height; y++) {
+      for (var x = 0; x < frameInfo.width; x++) {
+        if (interleaveMode === 0) { // planar (RRRRGGGGBBBB)
+          imageData.data[outOffset++] = pixelData[inOffset] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset + planeSize] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset + (planeSize * 2)] >> shift;
+          imageData.data[outOffset++] = 255;
+          inOffset++;
+        }
+        else if (interleaveMode === 1) { // line (actually RGB)
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = 255;
+        }
+        else if (interleaveMode === 2) { // pixel/sample (actually RGB)
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = pixelData[inOffset++] >> shift;
+          imageData.data[outOffset++] = 255;
+        }
+      }
+    }
+  }
 
-    const begin = performance.now(); // performance.now() returns value in milliseconds
-    var c = document.getElementById("myCanvas");
-    var ctx = c.getContext("2d");
-    ctx.fillRect(0,0,c.width, c.height);
-
-    c.width = frameInfo.width;
-    c.height = frameInfo.height;
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0,0,frameInfo.width, frameInfo.height);
-    var myImageData = ctx.createImageData(frameInfo.width, frameInfo.height);
+  function grayToCanvas(frameInfo, pixelData, imageData, signed) {
     var outOffset = 0;
     var planeSize = frameInfo.width * frameInfo.height;
     var inOffset = 0;
@@ -134,38 +158,16 @@
     const offset = -minMax.min;
     //console.log('bitShift=', bitShift);
     //console.log('offset=', offset);
-
+    
     for(var y=0; y < frameInfo.height; y++) {
       for (var x = 0; x < frameInfo.width; x++) {
         if(frameInfo.bitsPerSample <= 8) {
-          if (frameInfo.componentCount === 1) {
-            const value = pixelData[inOffset++];
-            myImageData.data[outOffset] = value;
-            myImageData.data[outOffset + 1] = value;
-            myImageData.data[outOffset + 2] = value;
-            myImageData.data[outOffset + 3] = 255;
-            outOffset += 4;
-          } else if (frameInfo.componentCount === 3) {
-            if (interleaveMode === 0) { // planar (RRRRGGGGBBBB)
-                myImageData.data[outOffset++] = pixelData[inOffset];
-                myImageData.data[outOffset++] = pixelData[inOffset + planeSize];
-                myImageData.data[outOffset++] = pixelData[inOffset + (planeSize * 2)];
-                myImageData.data[outOffset++] = 255;
-                inOffset++;
-            }
-            else if (interleaveMode === 1) { // line (actually RGB)
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = 255;
-            }
-            else if (interleaveMode === 2) { // pixel/sample (actually RGB)
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = pixelData[inOffset++];
-                myImageData.data[outOffset++] = 255;
-            }
-          }
+          const value = pixelData[inOffset++];
+          imageData.data[outOffset] = value;
+          imageData.data[outOffset + 1] = value;
+          imageData.data[outOffset + 2] = value;
+          imageData.data[outOffset + 3] = 255;
+          outOffset += 4;
         } 
         else // bitsPerSample > 8 
         {
@@ -174,20 +176,46 @@
           //  * Shift the pixels to display the most significant 8 bits
           const fullPixel = pixelData[inOffset++] + offset;
           const value = (fullPixel >> bitShift);
-          myImageData.data[outOffset] = value;
-          myImageData.data[outOffset + 1] = value;
-          myImageData.data[outOffset + 2] = value;
-          myImageData.data[outOffset + 3] = 255;
+          imageData.data[outOffset] = value;
+          imageData.data[outOffset + 1] = value;
+          imageData.data[outOffset + 2] = value;
+          imageData.data[outOffset + 3] = 255;
           outOffset += 4;
         }
       }
     }
+  }
+
+  function display(frameInfo, decodedBuffer, interleaveMode) {
+    const signed = $('#signed').is(":checked"); 
+
+    const pixelData = getPixelData(frameInfo, decodedBuffer, signed);
+
+    const begin = performance.now(); // performance.now() returns value in milliseconds
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    ctx.fillRect(0,0,c.width, c.height);
+
+    c.width = frameInfo.width;
+    c.height = frameInfo.height;
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0,0,frameInfo.width, frameInfo.height);
+    var myImageData = ctx.createImageData(frameInfo.width, frameInfo.height);
+    
+
+    if(frameInfo.componentCount > 1) {
+      colorToCanvas(frameInfo, pixelData, myImageData, interleaveMode);
+    } else {
+      grayToCanvas(frameInfo, pixelData, myImageData, signed);
+    }
+
+    
     ctx.putImageData(myImageData, 0, 0);
     const end = performance.now();
     $('#displayTime').text((end-begin).toFixed(2) + ' ms');
   }
 
-  function decode(encodedJPEGLSBitStream) {
+  function decode() {
     $('#encodedSize').text('' + encodedJPEGLSBitStream.length.toLocaleString() + ' bytes');
 
     // Setup
@@ -226,13 +254,21 @@
   }
 
   function load(url) {
+    if(url === '../../test/fixtures/CT1.JLS' ||
+      url === '../../test/fixtures/CT2.JLS') {
+        $('#signed').prop('checked', true);
+      } else {
+        $('#signed').prop('checked', false);
+      }
+
     fetch(url)
     .then((response) => {
       return response.arrayBuffer();
     })
     .then((arrayBuffer) => {
       try {
-        decode(new Uint8Array(arrayBuffer));
+        encodedJPEGLSBitStream = new Uint8Array(arrayBuffer);
+        decode();
       }
       catch(ex) {
         $('#status').text('Exception thrown while parsing ' + ex);
@@ -262,10 +298,23 @@
 
   Module.onRuntimeInitialized = async _ => {
     load('../../test/fixtures/CT1.JLS');
+    //load('../../test/fixtures/artificial-line.jls');
 
     $('#imageSelector').change(function(e) {
       reset();
       load(e.target.options[e.target.selectedIndex].value);
+    });
+
+
+    // set an event handler for the signed checkbox
+    $('#signed').change(function() {
+      console.log('checked toggle')
+      // this will contain a reference to the checkbox   
+      if (this.checked) {
+        decode();
+      } else {
+        decode();
+      }
     });
 
     // this function gets called once the user drops the file onto the div
@@ -282,10 +331,10 @@
       var fileReader = new FileReader();
       fileReader.onload = function (e) {
           var fileAsArrayBuffer = e.target.result;
-          var byteArray = new Uint8Array(fileAsArrayBuffer);
+          encodedJPEGLSBitStream = new Uint8Array(fileAsArrayBuffer);
           reset();
           try {
-            decode(byteArray);
+            decode();
           }
           catch(ex) {
             $('#status').text('Exception thrown while parsing ' + ex);
