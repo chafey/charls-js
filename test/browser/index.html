@@ -13,9 +13,6 @@
         <p class="lead">
           Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.
       </p>
-    </div>
-
-    <div class="row">
       <select id="imageSelector">
         <option value="../../test/fixtures/CT1.JLS" selected>CT1</option>
         <option value="../../test/fixtures/CT2.JLS">CT2</option>
@@ -40,31 +37,32 @@
         <option value="../../test/fixtures/artificial-sample.jls">16Bit RGB - sample</option>
         --> 
       </select>
-        <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>
+      <button id="benchmark">Benchmark</button>
+      <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>   
     </div>
     <div class="row">
-        <div class="col-md-12">Status:<span id="status"></span></div>
-    </div>
+        <div class="col-md-4">Status:<span id="status"></span></div>
+        <div class="col-md-4">Decode Time: <span id="decodeTime"></span></div>
+        <div class="col-md-4">Display Time: <span id="displayTime"></span></div>
+      </div>
     <div class="row">
       <div class="col-md-4">Encoded Size: <span id="encodedSize"></span></div>
       <div class="col-md-4">Decoded Size: <span id="decodedSize"></span></div>
       <div class="col-md-4">Compression Ratio: <span id="compressionRatio"></span></div>
     </div>
+    <hr>
     <div class="row">
-      <div class="col-md-4">Decode Time: <span id="decodeTime"></span></div>
-      <div class="col-md-4">Display Time: <span id="displayTime"></span></div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">Width: <span id="width"></span></div>
-      <div class="col-md-4">Height: <span id="height"></span></div>
-      <div class="col-md-4">Bits Per Sample: <span id="bitsPerSample"></span></div>
-    </div>
-    <div class="row">
+      <div class="col-md-4">Resolution: <span id="resolution"></span></div>
+      <div class="col-md-4">Pixel Format: <span id="pixelFormat"></span></div>
       <div class="col-md-4">Component Count: <span id="componentCount"></span></div>
+    </div>
+    <hr>
+    <div class="row">
       <div class="col-md-4">Interleave Mode: <span id="interleaveMode"></span></div>
       <div class="col-md-4">Near Lossless: <span id="nearLossless"></span></div>
     </div>
-  <div class="row">
+    <hr>
+    <div class="row">
     <div class="col-md-6">
         <canvas id='myCanvas' width="512" height="512"/>
     </div>
@@ -194,28 +192,23 @@
     const begin = performance.now(); // performance.now() returns value in milliseconds
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
-    ctx.fillRect(0,0,c.width, c.height);
 
     c.width = frameInfo.width;
     c.height = frameInfo.height;
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0,0,frameInfo.width, frameInfo.height);
     var myImageData = ctx.createImageData(frameInfo.width, frameInfo.height);
-    
 
     if(frameInfo.componentCount > 1) {
       colorToCanvas(frameInfo, pixelData, myImageData, interleaveMode);
     } else {
       grayToCanvas(frameInfo, pixelData, myImageData, signed);
     }
-
     
     ctx.putImageData(myImageData, 0, 0);
     const end = performance.now();
     $('#displayTime').text((end-begin).toFixed(2) + ' ms');
   }
 
-  function decode() {
+  function decode(iterations = 1) {
     $('#encodedSize').text('' + encodedJPEGLSBitStream.length.toLocaleString() + ' bytes');
 
     // Setup
@@ -227,18 +220,19 @@
 
     // Decode
     begin = performance.now(); // performance.now() returns value in milliseconds
-    instance.decode();
+    for(let i=0; i < iterations; i++) {
+      instance.decode();
+    }
     end = performance.now();
-    $('#decodeTime').text((end-begin).toFixed(2) + ' ms');
+    $('#decodeTime').text(((end-begin) / iterations).toFixed(2) + ' ms');
 
     const frameInfo = instance.getFrameInfo();
     const interleaveMode = instance.getInterleaveMode();
     const nearLossless = instance.getNearLossless();
 
     // Display image properties
-    $('#width').text(''+frameInfo.width);
-    $('#height').text(''+frameInfo.height);
-    $('#bitsPerSample').text(''+frameInfo.bitsPerSample);
+    $('#resolution').text(''+frameInfo.width + 'x' + frameInfo.height);
+    $('#pixelFormat').text(''+frameInfo.bitsPerSample +' bpp');
     $('#componentCount').text(''+frameInfo.componentCount);
     $('#interleaveMode').text(''+interleaveMode);
     $('#nearLossless').text(''+nearLossless);
@@ -288,9 +282,8 @@
     $('#compressionRatio').text('');
     $('#decodeTime').text('');
     $('#displayTime').text('');
-    $('#width').text('');
-    $('#height').text('');
-    $('#bitsPerSample').text('');
+    $('#resolution').text('');
+    $('#pixelFormat').text('');
     $('#componentCount').text('');
     $('#interleaveMode').text('');
     $('#nearLossless').text('');
@@ -305,6 +298,14 @@
       load(e.target.options[e.target.selectedIndex].value);
     });
 
+
+    $('#benchmark').click(function(e) {
+      $('#status').text('Please wait while benchmark runs....');
+      setTimeout(() => {
+        decode(50)
+        $('#status').text('');
+      }, 1);
+    });
 
     // set an event handler for the signed checkbox
     $('#signed').change(function() {
