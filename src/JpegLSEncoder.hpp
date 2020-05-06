@@ -37,7 +37,7 @@ class JpegLSEncoder {
   /// </returns>
   emscripten::val getDecodedBuffer(const FrameInfo& frameInfo) {
     frameInfo_ = frameInfo;
-    const size_t bytesPerPixel = frameInfo_.bitsPerSample / 8;
+    const size_t bytesPerPixel = (frameInfo_.bitsPerSample + 8 - 1) / 8;
     const size_t decodedSize = frameInfo_.width * frameInfo_.height * frameInfo_.componentCount * bytesPerPixel;
     decoded_.resize(decodedSize);
     return emscripten::val(emscripten::typed_memory_view(decoded_.size(), decoded_.data()));
