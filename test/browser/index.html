@@ -72,7 +72,7 @@
       </div>
         <div class="row">
       <div class="col-md-12">
-        <span>NEAR Parameter: </span><span id="nearParameter">10</span>
+        <span>NEAR Parameter: </span><span id="nearParameter">0</span>
         <input type="range" class="custom-range" id="nearParameterRange" min="0" max="100" value="0">
       </div>
     </div>
@@ -405,6 +405,13 @@
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
 
+    $('#download').click(function() {
+      // download the de-identified DICOM P10 bytestream
+      var blob = new Blob([encodedBitStream], {type: "image/jls"});
+      var url = window.URL.createObjectURL(blob);
+      window.open(url);
+      window.URL.revokeObjectURL(url);
+    });
   }
 </script>
 </html>
