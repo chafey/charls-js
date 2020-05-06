@@ -41,10 +41,13 @@
       <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>   
     </div>
     <div class="row">
-        <div class="col-md-4">Status:<span id="status"></span></div>
-        <div class="col-md-4">Decode Time: <span id="decodeTime"></span></div>
-        <div class="col-md-4">Display Time: <span id="displayTime"></span></div>
-      </div>
+      <div class="col-md-4">Status:<span id="status"></span></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">Encode Time: <span id="encodeTime"></span></div>
+      <div class="col-md-4">Decode Time: <span id="decodeTime"></span></div>
+      <div class="col-md-4">Display Time: <span id="displayTime"></span></div>
+    </div>
     <div class="row">
       <div class="col-md-4">Encoded Size: <span id="encodedSize"></span></div>
       <div class="col-md-4">Decoded Size: <span id="decodedSize"></span></div>
@@ -63,6 +66,23 @@
     </div>
     <hr>
     <div class="row">
+      <div class="col-md-12">
+        <b>Encoding Parameters</b>  
+      </div>
+      </div>
+        <div class="row">
+      <div class="col-md-12">
+        <span>Lossy Quantization Factor: </span><span id="quantization">10</span>
+        <input type="range" class="custom-range" id="quantizationRange" min="0" max="100" value="0">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button id="download">Download</button>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
     <div class="col-md-6">
         <canvas id='myCanvas' width="512" height="512"/>
     </div>
@@ -71,8 +91,13 @@
 
 <script>
 
-  let encodedJPEGLSBitStream = undefined;
-
+  let decoder = undefined;
+  let encoder = undefined;
+  let encodedBitStream = undefined;
+  let uncompressedImageFrame = undefined;
+  let frameInfo = undefined;
+  let quantization = 0;
+  let minMax = undefined;
 
   function getMinMax(frameInfo, pixelData) {
     const numPixels = frameInfo.width * frameInfo.height * frameInfo.componentCount;
@@ -209,26 +234,25 @@
   }
 
   function decode(iterations = 1) {
-    $('#encodedSize').text('' + encodedJPEGLSBitStream.length.toLocaleString() + ' bytes');
+    $('#encodedSize').text('' + encodedBitStream.length.toLocaleString() + ' bytes');
 
     // Setup
-    let instance = new Module.JpegLSDecoder();
-    const encodedBuffer = instance.getEncodedBuffer(encodedJPEGLSBitStream.length);
+    const encodedBuffer = decoder.getEncodedBuffer(encodedBitStream.length);
     let begin = performance.now(); // performance.now() returns value in milliseconds
-    encodedBuffer.set(encodedJPEGLSBitStream);
+    encodedBuffer.set(encodedBitStream);
     let end = performance.now();
 
     // Decode
     begin = performance.now(); // performance.now() returns value in milliseconds
     for(let i=0; i < iterations; i++) {
-      instance.decode();
+      decoder.decode();
     }
     end = performance.now();
     $('#decodeTime').text(((end-begin) / iterations).toFixed(2) + ' ms');
 
-    const frameInfo = instance.getFrameInfo();
-    const interleaveMode = instance.getInterleaveMode();
-    const nearLossless = instance.getNearLossless();
+    frameInfo = decoder.getFrameInfo();
+    const interleaveMode = decoder.getInterleaveMode();
+    const nearLossless = decoder.getNearLossless();
 
     // Display image properties
     $('#resolution').text(''+frameInfo.width + 'x' + frameInfo.height);
@@ -238,13 +262,25 @@
     $('#nearLossless').text(''+nearLossless);
 
     // Display Image
-    var decodedBuffer = instance.getDecodedBuffer();
+    var decodedBuffer = decoder.getDecodedBuffer();
     $('#decodedSize').text(''+decodedBuffer.length.toLocaleString() + " bytes");
-    $('#compressionRatio').text('' + (decodedBuffer.length /encodedJPEGLSBitStream.length).toFixed(2) + ":1");
+    $('#compressionRatio').text('' + (decodedBuffer.length / encodedBitStream.length).toFixed(2) + ":1");
     display(frameInfo, decodedBuffer, interleaveMode);
+  }
 
-    // Free up memory
-    instance.delete();
+  function encode(NEARParameter, iterations = 1) {
+    // Setup buffer
+    const decodedBytes = encoder.getDecodedBuffer(frameInfo);
+    decodedBytes.set(uncompressedImageFrame);
+    encoder.setNearLossless(NEARParameter);
+    
+    // Do the encode
+    begin = performance.now(); // performance.now() returns value in milliseconds
+    for(let i=0; i < iterations; i++) {
+      encoder.encode();
+    }
+    end = performance.now();
+    $('#encodeTime').text(((end-begin) / iterations).toFixed(2) + ' ms');
   }
 
   function load(url) {
@@ -260,16 +296,17 @@
       return response.arrayBuffer();
     })
     .then((arrayBuffer) => {
-      try {
-        encodedJPEGLSBitStream = new Uint8Array(arrayBuffer);
+      // {
+        encodedBitStream = new Uint8Array(arrayBuffer);
         decode();
-      }
-      catch(ex) {
-        $('#status').text('Exception thrown while parsing ' + ex);
-      }
-    }).catch(function() {
-      $('#status').text('error loading ' + url);
-    });
+        uncompressedImageFrame = new Uint8Array(decoder.getDecodedBuffer().length);
+        uncompressedImageFrame.set(decoder.getDecodedBuffer());      //}
+      //catch(ex) {
+      //  $('#status').text('Exception thrown while parsing ' + ex);
+     // }
+    });//.catch(function() {
+      //$//('#status').text('error loading ' + url);
+    //});
   }
 
   function reset() {
@@ -290,6 +327,9 @@
   }
 
   Module.onRuntimeInitialized = async _ => {
+    decoder = new Module.JpegLSDecoder();
+    encoder = new Module.JpegLSEncoder();
+    
     load('../../test/fixtures/CT1.JLS');
     //load('../../test/fixtures/artificial-line.jls');
 
@@ -298,7 +338,16 @@
       load(e.target.options[e.target.selectedIndex].value);
     });
 
-
+    $('#quantizationRange').on('input', function(e) {
+      NEARParameter = parseFloat($(this).val());
+      $('#quantization').text('' + quantization.toFixed(5));
+      encode(NEARParameter);
+      // Get the encoded bytes and display them
+      const encodedBytes = encoder.getEncodedBuffer();
+      encodedBitStream = encodedBytes;
+      decode();
+    });
+    
     $('#benchmark').click(function(e) {
       $('#status').text('Please wait while benchmark runs....');
       setTimeout(() => {
@@ -332,7 +381,7 @@
       var fileReader = new FileReader();
       fileReader.onload = function (e) {
           var fileAsArrayBuffer = e.target.result;
-          encodedJPEGLSBitStream = new Uint8Array(fileAsArrayBuffer);
+          encodedBitStream = new Uint8Array(fileAsArrayBuffer);
           reset();
           try {
             decode();
