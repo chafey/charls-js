@@ -36,6 +36,7 @@ EMSCRIPTEN_BINDINGS(JpegLSEncoder) {
     .function("getDecodedBuffer", &JpegLSEncoder::getDecodedBuffer)
     .function("getEncodedBuffer", &JpegLSEncoder::getEncodedBuffer)
     .function("setNearLossless", &JpegLSEncoder::setNearLossless)
+    .function("setInterleaveMode", &JpegLSEncoder::setInterleaveMode)
     .function("encode", &JpegLSEncoder::encode)
    ;
 }

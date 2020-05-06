@@ -72,8 +72,8 @@
       </div>
         <div class="row">
       <div class="col-md-12">
-        <span>Lossy Quantization Factor: </span><span id="quantization">10</span>
-        <input type="range" class="custom-range" id="quantizationRange" min="0" max="100" value="0">
+        <span>NEAR Parameter: </span><span id="nearParameter">10</span>
+        <input type="range" class="custom-range" id="nearParameterRange" min="0" max="100" value="0">
       </div>
     </div>
     <div class="row">
@@ -98,6 +98,7 @@
   let frameInfo = undefined;
   let quantization = 0;
   let minMax = undefined;
+  let interleaveMode = undefined;
 
   function getMinMax(frameInfo, pixelData) {
     const numPixels = frameInfo.width * frameInfo.height * frameInfo.componentCount;
@@ -251,7 +252,7 @@
     $('#decodeTime').text(((end-begin) / iterations).toFixed(2) + ' ms');
 
     frameInfo = decoder.getFrameInfo();
-    const interleaveMode = decoder.getInterleaveMode();
+    interleaveMode = decoder.getInterleaveMode();
     const nearLossless = decoder.getNearLossless();
 
     // Display image properties
@@ -273,7 +274,7 @@
     const decodedBytes = encoder.getDecodedBuffer(frameInfo);
     decodedBytes.set(uncompressedImageFrame);
     encoder.setNearLossless(NEARParameter);
-    
+    encoder.setInterleaveMode(interleaveMode)
     // Do the encode
     begin = performance.now(); // performance.now() returns value in milliseconds
     for(let i=0; i < iterations; i++) {
@@ -338,9 +339,9 @@
       load(e.target.options[e.target.selectedIndex].value);
     });
 
-    $('#quantizationRange').on('input', function(e) {
+    $('#nearParameterRange').on('input', function(e) {
       NEARParameter = parseFloat($(this).val());
-      $('#quantization').text('' + quantization.toFixed(5));
+      $('#nearParameter').text('' + NEARParameter);
       encode(NEARParameter);
       // Get the encoded bytes and display them
       const encodedBytes = encoder.getEncodedBuffer();
