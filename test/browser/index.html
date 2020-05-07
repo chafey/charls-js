@@ -53,16 +53,20 @@
       <div class="col-md-4">Decoded Size: <span id="decodedSize"></span></div>
       <div class="col-md-4">Compression Ratio: <span id="compressionRatio"></span></div>
     </div>
-    <hr>
     <div class="row">
       <div class="col-md-4">Resolution: <span id="resolution"></span></div>
       <div class="col-md-4">Pixel Format: <span id="pixelFormat"></span></div>
       <div class="col-md-4">Component Count: <span id="componentCount"></span></div>
     </div>
+    <div class="row">
+      <div class="col-md-4">Min Pixel: <span id="minPixel"></span></div>
+      <div class="col-md-4">Max Pixel: <span id="maxPixel"></span></div>
+      <div class="col-md-4">Dynamic Range: <span id="dynamicRange"></span></div>
+    </div>
     <hr>
     <div class="row">
       <div class="col-md-4">Interleave Mode: <span id="interleaveMode"></span></div>
-      <div class="col-md-4">Near Lossless: <span id="nearLossless"></span></div>
+      <div class="col-md-4">NEAR Parameter: <span id="nearLossless"></span></div>
     </div>
     <hr>
     <div class="row">
@@ -167,9 +171,13 @@
     var planeSize = frameInfo.width * frameInfo.height;
     var inOffset = 0;
    
-    const minMax = getMinMax(frameInfo, pixelData);
+    minMax = getMinMax(frameInfo, pixelData);
+    $('#minPixel').text('' + minMax.min);
+    $('#maxPixel').text('' + minMax.max);
+
     //console.log(minMax);
     let dynamicRange = minMax.max - minMax.min;
+    $('#dynamicRange').text('' + dynamicRange);
     //console.log('dynamicRange=', dynamicRange);
     let bitsOfData = 1;
     while(dynamicRange > 1) {
@@ -310,6 +318,7 @@
   }
 
   function reset() {
+    minMax = undefined;
     const c = document.getElementById("myCanvas");
     const ctx = c.getContext("2d");
     ctx.fillRect(0,0,c.width, c.height);
