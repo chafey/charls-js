@@ -41,6 +41,9 @@
       <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>   
     </div>
     <div class="row">
+      <label><input id="visualizeDeltas" type="checkbox" value="">Visualize Deltas</label>   
+    </div>
+    <div class="row">
       <div class="col-md-4">Status:<span id="status"></span></div>
     </div>
     <div class="row">
@@ -122,9 +125,9 @@
   function getPixelData(frameInfo, decodedBuffer, signed) {
     if(frameInfo.bitsPerSample > 8) {
       if(signed) {
-        return new Int16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength);
+        return new Int16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength / 2);
       } else {
-        return new Uint16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength);
+        return new Uint16Array(decodedBuffer.buffer, decodedBuffer.byteOffset, decodedBuffer.byteLength / 2);
       }
     } else {
       return decodedBuffer;
@@ -217,6 +220,40 @@
     }
   }
 
+  function deltasToCanvas(frameInfo, pixelData, imageData, signed) {
+    if(!uncompressedImageFrame) {
+      return;
+    }
+    const deltas = new Int32Array(frameInfo.height * frameInfo.width);
+    const uif = getPixelData(frameInfo, uncompressedImageFrame, signed);
+    let inOffset = 0;
+    let outOffset = 0;
+    for(var y=0; y < frameInfo.height; y++) {
+      for (var x = 0; x < frameInfo.width; x++) {
+          const unc = uif[inOffset];
+          const comp = pixelData[inOffset];
+          deltas[inOffset++] = Math.abs(comp - unc);
+      }
+    }
+    const deltaMinMax = getMinMax(frameInfo, deltas);
+    console.log('deltas min/max', deltaMinMax);
+    inOffset = 0;
+
+    for(var y=0; y < frameInfo.height; y++) {
+      for (var x = 0; x < frameInfo.width; x++) {
+        if(uncompressedImageFrame) {
+          const delta = deltas[inOffset];
+          inOffset++;
+          imageData.data[outOffset] = delta;
+          imageData.data[outOffset + 1] = delta;
+          imageData.data[outOffset + 2] = delta;
+          imageData.data[outOffset + 3] = 255;
+          outOffset += 4;
+        }
+      } 
+    }
+  }
+
   function display(frameInfo, decodedBuffer, interleaveMode) {
     const signed = $('#signed').is(":checked"); 
 
@@ -230,10 +267,17 @@
     c.height = frameInfo.height;
     var myImageData = ctx.createImageData(frameInfo.width, frameInfo.height);
 
+    const visualizeDeltas = $('#visualizeDeltas').is(":checked"); 
+
+
     if(frameInfo.componentCount > 1) {
       colorToCanvas(frameInfo, pixelData, myImageData, interleaveMode);
     } else {
-      grayToCanvas(frameInfo, pixelData, myImageData, signed);
+      if(visualizeDeltas) {
+        deltasToCanvas(frameInfo, pixelData, myImageData, signed);
+      } else {
+        grayToCanvas(frameInfo, pixelData, myImageData, signed);
+      }
     }
     
     ctx.putImageData(myImageData, 0, 0);
@@ -368,6 +412,15 @@
     // set an event handler for the signed checkbox
     $('#signed').change(function() {
       console.log('checked toggle')
+      // this will contain a reference to the checkbox   
+      if (this.checked) {
+        decode();
+      } else {
+        decode();
+      }
+    });
+
+    $('#visualizeDeltas').change(function() {
       // this will contain a reference to the checkbox   
       if (this.checked) {
         decode();
