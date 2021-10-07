@@ -9,10 +9,11 @@
 <body>
 <div class="container">
     <div class="page-header">
-        <h1>JPEG-LS Decoding with WebAssembly</h1>
+        <h1>JPEG-LS Decoding with WebAssembly (v<span id="version"></span>)</div></h1>
         <p class="lead">
           Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.
       </p>
+      <div>
       <select id="imageSelector">
         <option value="../../test/fixtures/jls/CT1.JLS" selected>CT1</option>
         <option value="../../test/fixtures/jls/CT2.JLS">CT2</option>
@@ -372,6 +373,7 @@
   }
 
   Module.onRuntimeInitialized = async _ => {
+    $("#version").text(Module.getVersion())
     decoder = new Module.JpegLSDecoder();
     encoder = new Module.JpegLSEncoder();
     
