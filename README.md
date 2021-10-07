@@ -3,7 +3,7 @@ JS/WebAssembly build of [CharLS](https://github.com/team-charls/charls)
 
 ## Try It Out!
 
-Try it in your browser [here](https://chafey.github.com/charls-js/test/browser/index.html)
+Try it in your browser [here](https://chafey.github.io/charls-js/test/browser/index.html)
 
 ## Install
 

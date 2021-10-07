@@ -10,6 +10,13 @@ for this build are as follows:
 
 **earlier versions may work but have not been tested**
 
+## Initialize git submodules
+
+This project depends on the charls library and references it using
+git submodules.  You must initialize it before building:
+
+> git submodule update --init --recursive
+
 ## Visual Studio Code Remote Containers Support
 
 This project includes support for building in a docker container using the 
