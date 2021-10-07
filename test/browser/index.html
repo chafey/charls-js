@@ -128,13 +128,9 @@
   }
 
   function colorToCanvas(frameInfo, pixelData, imageData, interleaveMode) {
+    const planeSize = frameInfo.width * frameInfo.height;
+    const shift = frameInfo.bitsPerSample > 8 ? frameInfo.bitsPerSample - 8 : 0;
     let outOffset = 0;
-    const bytesPerSample = (frameInfo.bitsPerSample <= 8) ? 1 : 2;
-    let planeSize = frameInfo.width * frameInfo.height * bytesPerSample;
-    let shift = 0;
-    if(frameInfo.bitsPerSample >8) {
-      shift = 8;
-    }
     let inOffset = 0;
    
     for(var y=0; y < frameInfo.height; y++) {
@@ -248,7 +244,8 @@
   }
 
   function display(frameInfo, decodedBuffer, interleaveMode) {
-    const signed = $('#signed').is(":checked"); 
+    // Use the signed option for monochrome (1 component) image. Multi component images are always unsigned.
+    const signed = $('#signed').is(":checked") && frameInfo.componentCount === 1; 
 
     const pixelData = getPixelData(frameInfo, decodedBuffer, signed);
 
