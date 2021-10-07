@@ -50,10 +50,10 @@ function encode(pathToUncompressedImageFrame, imageFrame, iterations = 1) {
 
 charls.onRuntimeInitialized = async _ => {
 
-  decode('../fixtures/CT1.JLS');
-  decode('../fixtures/CT2.JLS');
-  //decode('../fixtures/MG1.JLS');
+  decode('../fixtures/jls/CT1.JLS');
+  decode('../fixtures/jls/CT2.JLS');
+  //decode('../fixtures/jls/MG1.JLS');
   decode("../../extern/charls/test/lena8b.jls");
 
-  encode('../fixtures/CT2.RAW', {width: 512, height: 512, bitsPerSample: 16, componentCount: 1});
+  encode('../fixtures/raw/CT2.RAW', {width: 512, height: 512, bitsPerSample: 16, componentCount: 1});
 }

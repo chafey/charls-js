@@ -14,28 +14,20 @@
           Select an image or drag and drop a JPEG-LS file.  Files dropped here remain local in your browser, they are not uploaded anywhere.
       </p>
       <select id="imageSelector">
-        <option value="../../test/fixtures/CT1.JLS" selected>CT1</option>
-        <option value="../../test/fixtures/CT2.JLS">CT2</option>
-        <!--<option value="../../test/fixtures/MG1.JLS">MG1</option>-->
-        <option value="../../extern/charls/test/conformance/T8C0E0.JLS">T8C0E0</option>
-        <option value="../../extern/charls/test/conformance/T8C0E3.JLS">T8C0E3</option>
-        <option value="../../extern/charls/test/conformance/T8C1E0.JLS">T8C1E0</option>
-        <option value="../../extern/charls/test/conformance/T8C1E3.JLS">T8C1E3</option>
-        <option value="../../extern/charls/test/conformance/T8C2E0.JLS">T8C2E0</option>
-        <option value="../../extern/charls/test/conformance/T8C2E3.JLS">T8C2E3</option>
-        <option value="../../extern/charls/test/conformance/T8NDE3.JLS">T8NDE3</option>
-        <option value="../../extern/charls/test/conformance/T16E0.JLS">T16E0</option>
-        <option value="../../extern/charls/test/conformance/T16E3.JLS">T16E3</option>
-        <option value="../../extern/charls/test/lena8b.jls">lena8b</option>
-        <option value="../../extern/charls/test/jlsimage/banny_HP1.jls">banny_HP1</option>
-        <option value="../../extern/charls/test/jlsimage/banny_HP2.jls">banny_HP2</option>
-        <option value="../../extern/charls/test/jlsimage/banny_HP3.jls">banny_HP3</option>
-        <option value="../../extern/charls/test/jlsimage/banny_normal.jls">banny_normal</option>
-        <!--
-        <option value="../../test/fixtures/artificial-line.jls">16Bit RGB - line</option>
-        <option value="../../test/fixtures/artificial-none.jls">16Bit RGB - none</option>
-        <option value="../../test/fixtures/artificial-sample.jls">16Bit RGB - sample</option>
-        --> 
+        <option value="../../test/fixtures/jls/CT1.JLS" selected>CT1</option>
+        <option value="../../test/fixtures/jls/CT2.JLS">CT2</option>
+        <option value="../../test/fixtures/jls/MG1.JLS">MG1</option>
+        <option value="../../test/fixtures/jls/MR1.JLS">MR1</option>
+        <option value="../../test/fixtures/jls/MR2.JLS">MR2</option>
+        <option value="../../test/fixtures/jls/MR3.JLS">MR3</option>
+        <option value="../../test/fixtures/jls/MR4.JLS">MR4</option>
+        <option value="../../test/fixtures/jls/NM1.JLS">NM1</option>
+        <option value="../../test/fixtures/jls/RG1.JLS">RG1</option>
+        <option value="../../test/fixtures/jls/RG2.JLS">RG2</option>
+        <option value="../../test/fixtures/jls/RG3.JLS">RG3</option>
+        <option value="../../test/fixtures/jls/SC1.JLS">SC1</option>
+        <option value="../../test/fixtures/jls/XA1.JLS">XA1</option>
+
       </select>
       <button id="benchmark">Benchmark</button>
       <label><input id="signed" type="checkbox" value="">Signed Data - check to properly display signed DICOM images</label>   
@@ -336,8 +328,8 @@
   }
 
   function load(url) {
-    if(url === '../../test/fixtures/CT1.JLS' ||
-      url === '../../test/fixtures/CT2.JLS') {
+    if(url === '../../test/fixtures/jls/CT1.JLS' ||
+      url === '../../test/fixtures/jls/CT2.JLS') {
         $('#signed').prop('checked', true);
       } else {
         $('#signed').prop('checked', false);
@@ -383,7 +375,7 @@
     decoder = new Module.JpegLSDecoder();
     encoder = new Module.JpegLSEncoder();
     
-    load('../../test/fixtures/CT1.JLS');
+    load('../../test/fixtures/jls/CT1.JLS');
     //load('../../test/fixtures/artificial-line.jls');
 
     $('#imageSelector').change(function(e) {
