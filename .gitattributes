@@ -1,0 +1,17 @@
+# Set default behavior to use unix line feeds.
+* text eol=lf
+
+# Explicit define text files types.
+*.cpp text diff=cpp
+*.h text diff=cpp
+*.sh text
+
+# Explicit exclude binary files.
+*.png binary
+*.jls binary
+*.JLS binary
+*.RAW binary
+
+# Export ignore all files that are only needed for git (used when downloading the repository as a zip file).
+.gitattributes export-ignore
+.gitignore export-ignore
