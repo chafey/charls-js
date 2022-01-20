@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <iterator>
-#include <time.h> 
+#include <time.h>
 
 void readFile(std::string fileName, std::vector<unsigned char>& vec) {
     // open the file:
@@ -50,11 +50,16 @@ using namespace charls;
 void decode(const char* path, size_t iterations = 1) {
     std::vector<unsigned char> source;
     readFile(path, source);
-    std::vector<unsigned char> destination;
+
+    // Pre-allocate the destination buffer outside the measurement loop.
+    // std::vector allocates and initializes its elements and this step needs to be excluded from the measurement.
+    std::vector<unsigned char> destination(jpegls_decoder{source, true}.destination_size());
+
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
     for(int i=0; i < iterations; i++) {
-        jpegls_decoder::decode(source, destination);
+        const jpegls_decoder decoder{source, true};
+        decoder.decode(destination);
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &finish);
     sub_timespec(start, finish, &delta);
