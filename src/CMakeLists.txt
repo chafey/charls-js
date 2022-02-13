@@ -1,3 +1,4 @@
+option(BUILD_WEB "build for web environment")
 
 add_executable(charlsjs jslib.cpp)
 
@@ -13,7 +14,25 @@ endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-set_target_properties(
+if(BUILD_WEB)
+  set_target_properties(
+      charlsjs 
+      PROPERTIES 
+      LINK_FLAGS "\
+        --bind \
+        -s NO_EXIT_RUNTIME=1 \
+        -s DISABLE_EXCEPTION_CATCHING=1 \
+        -s MALLOC=emmalloc \
+        -s ALLOW_MEMORY_GROWTH=1 \
+        -s TOTAL_MEMORY=1073741824 \
+        -s ASSERTIONS=0 \
+        -s FILESYSTEM=0 \
+        -s EXPORTED_FUNCTIONS=[] \
+        -s EXPORTED_RUNTIME_METHODS=[ccall] \
+        -s ENVIRONMENT=web \
+    ")
+else()
+  set_target_properties(
     charlsjs 
     PROPERTIES 
     LINK_FLAGS "\
@@ -27,4 +46,5 @@ set_target_properties(
       -s FILESYSTEM=0 \
       -s EXPORTED_FUNCTIONS=[] \
       -s EXPORTED_RUNTIME_METHODS=[ccall] \
-   ")
+  ")
+endif()
