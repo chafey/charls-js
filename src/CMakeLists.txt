@@ -29,6 +29,8 @@ if(BUILD_WEB)
         -s FILESYSTEM=0 \
         -s EXPORTED_FUNCTIONS=[] \
         -s EXPORTED_RUNTIME_METHODS=[ccall] \
+        -s MODULARIZE=1 \
+        -s EXPORT_NAME=CharLS \
         -s ENVIRONMENT=web \
     ")
 else()
@@ -46,5 +48,7 @@ else()
       -s FILESYSTEM=0 \
       -s EXPORTED_FUNCTIONS=[] \
       -s EXPORTED_RUNTIME_METHODS=[ccall] \
+      -s MODULARIZE=1 \
+      -s EXPORT_NAME=CharLS \
   ")
 endif()
