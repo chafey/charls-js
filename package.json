@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "WASM Build of CharLS",
   "main": "dist/charlsjs.js",
+  "browser": "dist/charlsjs.web.js",
   "directories": {
     "test": "test"
   },

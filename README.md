@@ -19,8 +19,8 @@ Install this in your JavaScript project using npm:
 Before using this library, you must wait for it to be initialized:
 
 ``` javascript
-const charls = require('charlsjs')
-charls.onRuntimeInitialized = async _ => {
+const CharLS = require('charlsjs')
+CharLS().then((charls) => {
     // Now you can use it
 }
 ```
