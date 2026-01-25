@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <charls/charls.h>
+#include <charls/charls.hpp>
 
 #include <emscripten/val.h>
 
 #include "FrameInfo.hpp"
 
 /// <summary>
-/// JavaScript API for decoding JPEG-LS bistreams with CharLS
+/// JavaScript API for decoding JPEG-LS bitstreams with CharLS
 /// </summary>
 class JpegLSDecoder {
   public: 
@@ -23,7 +23,7 @@ class JpegLSDecoder {
   /// <summary>
   /// Resizes encoded buffer and returns a TypedArray of the buffer allocated
   /// in WASM memory space that will hold the JPEG-LS encoded bitstream.
-  /// JavaScript code needs to copy the JPEG-LS encoded bistream into the
+  /// JavaScript code needs to copy the JPEG-LS encoded bitstream into the
   /// returned TypedArray.  This copy operation is needed because WASM runs
   /// in a sandbox and cannot access memory managed by JavaScript.
   /// </summary>
@@ -51,15 +51,15 @@ class JpegLSDecoder {
     
     decoder.read_header();
 
-    nearLossless_ = decoder.near_lossless();
-    interleaveMode_ = decoder.interleave_mode();
+    nearLossless_ = decoder.get_near_lossless();
+    interleaveMode_ = decoder.get_interleave_mode();
     charls::frame_info frameInfo = decoder.frame_info();
     frameInfo_.width = frameInfo.width;
     frameInfo_.height = frameInfo.height;
     frameInfo_.bitsPerSample = frameInfo.bits_per_sample;
     frameInfo_.componentCount = frameInfo.component_count;
 
-    const size_t destination_size{decoder.destination_size()};
+    const size_t destination_size{decoder.get_destination_size()};
     decoded_.resize(destination_size);
 
     decoder.decode(decoded_);
