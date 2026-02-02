@@ -1,4 +1,13 @@
 # charls-js
+
+**NOTE**
+
+!!This repository is no longer maintained!!
+
+Please visit the [team-charls/charls-wasm](https://github.com/team-charls/charls-wasm) repository for updates.  Thank you! 
+
+**NOTE**
+
 JS/WebAssembly build of [CharLS](https://github.com/team-charls/charls)
 
 ## Try It Out!
